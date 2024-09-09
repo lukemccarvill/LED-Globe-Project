@@ -29,7 +29,7 @@ The first interesting finding was just how unequally the world's energy is used.
   <strong>Figure 1: Graph of Top 30 Countries by Primary Energy Consumption</strong>
 </p>
 
-This is only the top 30 countries – Let's instead include all 212 entities (countries, dependencies, microstates, etc. included by *Our World in Data*). It is nearly linear in base-10 logarithmic format!
+This is only the top 30 countries – what if we include all 212 entities (countries, dependencies, microstates, etc. included by *Our World in Data*)? It is simpler to see the quantities in logarithmic format:
 
 <p align="center">
   <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="450"/>
@@ -64,9 +64,9 @@ Once we have the LEDs marked as coordinates in a GIS software, we then somehow n
 Spiros Staridas created a beautiful 12-gore map which I used as a reference:
 
 <p align="center">
-  <img src="twelve-stripes-of-the-globe-featured-image-2048x1072.jpg" alt="see fig title" width="900"/>
+  <img src="images/twelve-stripes-of-the-globe-featured-image-2048x1072.jpg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 6: "Twelve Stripes of the Globe" from Spiros Staridas in 2020</strong>
+  <strong>Figure 6: "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Link</a>]</strong>
 </p>
 
 
@@ -80,7 +80,7 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
 </p>
 
 
-### Misc
+### Misc (WORK IN PROGRESS)
 
 There were many other challenges along the way, such as:
 - How do we feasibly produce PCB's this large (*recall – the circumfrence of this globe is 4 m long!*), even if they are in gore strips?
@@ -88,7 +88,7 @@ There were many other challenges along the way, such as:
 - How do we decide where to place a nation's LEDs if it is too small to fit them? Singapore, for example, was allocated 20 LEDs but only enough tiles for two!
 - ... and many programming/debugging challenges with these large datasets!
 
-# Future Work
+# Future Work (WORK IN PROGRESS)
 
 - This project uses population density within a given country to determine where geographically the country's allocated LEDs should go, since energy usage rasters are not readily available compared to population density rasters. This should instead be changed to utilize actual energy usage rasters OR using nighttime lights rasters, like from Earth Observation Group.
 - All LEDs are run electrically in parallel with equal current to provide the same brightness. However, in the future, it would be best to utilize current-limiting resistors (of the same 0805 SMD style) on the back of the flexible PCB in order to have variable-brightness LEDs. This would enable more energy-intensive nations like Singapore to have visually brighter LEDs rather than just more of them.
@@ -117,12 +117,11 @@ There were many other challenges along the way, such as:
 # Credits
 
 ### Primary Author: Luke McCarvill
-Many thanks to my supervisor in the UPEI Faculty of Sustainable Design Engineering, Dr. Andrew Swingler, for coming up with this idea and supporting the process. Riley Fitzpatrick, my coworker and fellow UPEI FSDE student, was also instrumental, particularly in the early stages of the project, performing many of the scaling and PV calculations.
+Many thanks to Dr. Andrew Swingler, my supervisor in the UPEI Faculty of Sustainable Design Engineering, for coming up with this idea and supporting the process. Riley Fitzpatrick, my coworker and fellow UPEI FSDE student, was also instrumental, particularly in the early stages of the project, performing many of the scaling and PV calculations.
 
 ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solving process.
 
-# Instructions for Installation and Usage
-
+# Instructions for Installation and Usage (WORK IN PROGRESS)
 - Clone the repo...
 
 
