@@ -132,7 +132,3 @@ ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solvi
 # Instructions for Installation and Usage (work in progress)
 - Clone the repo...
 - If you wish to manually edit the LED positions, you can place an edited GeoJSON file in the `data/` folder (such as the one I've supplied using my own edits) and set the `use_edited_geojson` flag to `True` in `src/main.py`. The script will automatically load this file instead of generating a new one. If no such file exists or the `use_edited_geojson` flag is set to `False`, the script will generate a new GeoJSON file for manual manipulation.
-- test1
-- test2
-- test2.2
-- test3
