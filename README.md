@@ -29,7 +29,7 @@ The first interesting finding was just how unequally the world's energy is used.
   <strong>Figure 1: Graph of Top 30 Countries by Primary Energy Consumption</strong>
 </p>
 
-This is only the top 30 countries – what if we include all 212 entities (countries, dependencies, microstates, etc. included by *Our World in Data*)? It is simpler to see the quantities in logarithmic format:
+This is only the top 30 countries – Let's instead include all 212 entities (countries, dependencies, microstates, etc. included by *Our World in Data*). It is nearly linear in base-10 logarithmic format!
 
 <p align="center">
   <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="450"/>
