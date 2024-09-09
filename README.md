@@ -80,7 +80,7 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
 </p>
 
 
-### Misc (WORK IN PROGRESS)
+### Misc (work in progress)
 
 There were many other challenges along the way, such as:
 - How do we feasibly produce PCB's this large (*recall – the circumfrence of this globe is 4 m long!*), even if they are in gore strips?
@@ -88,7 +88,7 @@ There were many other challenges along the way, such as:
 - How do we decide where to place a nation's LEDs if it is too small to fit them? Singapore, for example, was allocated 20 LEDs but only enough tiles for two!
 - ... and many programming/debugging challenges with these large datasets!
 
-# Future Work (WORK IN PROGRESS)
+# Future Work (work in progress)
 
 - This project uses population density within a given country to determine where geographically the country's allocated LEDs should go, since energy usage rasters are not readily available compared to population density rasters. This should instead be changed to utilize actual energy usage rasters OR using nighttime lights rasters, like from Earth Observation Group.
 - All LEDs are run electrically in parallel with equal current to provide the same brightness. However, in the future, it would be best to utilize current-limiting resistors (of the same 0805 SMD style) on the back of the flexible PCB in order to have variable-brightness LEDs. This would enable more energy-intensive nations like Singapore to have visually brighter LEDs rather than just more of them.
@@ -121,8 +121,6 @@ Many thanks to Dr. Andrew Swingler, my supervisor in the UPEI Faculty of Sustain
 
 ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solving process.
 
-# Instructions for Installation and Usage (WORK IN PROGRESS)
+# Instructions for Installation and Usage (work in progress)
 - Clone the repo...
-
-
-If you wish to manually edit the LED positions, you can place an edited GeoJSON file in the `data/` folder (such as the one I've supplied using my own edits) and set the `use_edited_geojson` flag to `True` in `src/main.py`. The script will automatically load this file instead of generating a new one. If no such file exists or the `use_edited_geojson` flag is set to `False`, the script will generate a new GeoJSON file for manual manipulation.
+- If you wish to manually edit the LED positions, you can place an edited GeoJSON file in the `data/` folder (such as the one I've supplied using my own edits) and set the `use_edited_geojson` flag to `True` in `src/main.py`. The script will automatically load this file instead of generating a new one. If no such file exists or the `use_edited_geojson` flag is set to `False`, the script will generate a new GeoJSON file for manual manipulation.
