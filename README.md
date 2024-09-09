@@ -21,7 +21,7 @@ With the calculated requirement of 0.1002% of Earth’s surface area to be dedic
 # Challenges and Learnings
 
 ### China's Energy Dominance
-The first interesting finding was just how unequally the world's energy is used. For instance, China uses about 28% of the world's primary energy! If we have ~3500 LEDs, China is allocated almost 1000 of them, as shown in the figure below.
+The first interesting finding was just how unequal the world's energy usage is when dividing by political boundaries. For instance, China uses about 28% of the world's primary energy! If we have ~3500 LEDs, China is allocated almost 1000 of them, as shown in the figure below. *Of course, China is also extremely populous. When it comes to per-capita energy usage, countries like Canada, Norway, and Iceland use far more energy per person than China.*
 
 <p align="center">
   <img src="images/Graph30Countries.png" alt="Graph of Top 30 Countries by Primary Energy Consumption" width="700"/>
@@ -29,7 +29,7 @@ The first interesting finding was just how unequally the world's energy is used.
   <strong>Figure 1: Graph of Top 30 Countries by Primary Energy Consumption</strong>
 </p>
 
-This is only the top 30 countries – what if we include all 212 entities (countries, dependencies, microstates, etc. included by *Our World in Data*)? It is simpler to see the quantities in logarithmic format:
+This is only the top 30 countries – let's instead include all 212 entities (193 countries plus some dependencies, microstates, etc. included by *Our World in Data*). The dominance in energy consumption seen from the top few nations – particularly China – is incredible.
 
 <p align="center">
   <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="450"/>
@@ -39,9 +39,17 @@ This is only the top 30 countries – what if we include all 212 entities (count
 </p>
 
 
-### Number of LEDs
+### Number of LEDs (work in progress)
 
-Even with almost 3500 LEDs, we can only represent top 113-consuming countries. This means that any entity that uses less energy than Moldova – including nations like Nepal, Cameroon, Latvia, Luxembourg, and the Democratic Republic of the Congo – will not be represented on the map with even one LED. For a small island nation like the Cook Islands, we would need over 180,000 LEDs globally for Cook Islands to be allocated a single diode. The following image shows the placement of the LEDs in QGIS:
+Even with almost 3500 LEDs, we can only represent top 113-consuming countries. This means that any entity that uses less energy than Moldova – including nations like Nepal, Cameroon, Latvia, Luxembourg, and the Democratic Republic of the Congo – will not be represented on the map with even one LED. For a small island nation like the Cook Islands (#204 on the list), we would need over 180,000 LEDs globally for Cook Islands to be allocated a single diode.
+
+Now, we know how many LEDs that a given country should have, but how do we go about deciding where to place each LED within a given country? Given that energy usage rasters (geographical data) are not readily available at a global scale, the next best option that I thought of was using population density. These GeoTiff rasters are readily available in many resolutions and likely track well enough with energy usage that they would appear to be a reasonable analogue for energy usage to most viewers of the model globe. *In retrospect, it likely would have been better to use [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) instead, but that is future work.* Therefore, within a given country, let's say China, we will place its 970 allocated LEDs in its most densely-populated areas, and we will hope that these also closely align with the areas where most of China's energy is being used.
+
+- image of china zoomed in
+
+
+
+The following image shows the placement of the LEDs in QGIS:
 
 <p align="center">
   <img src="images/Global3500LEDs.png" alt="see fig title" width="900"/>
