@@ -1,0 +1,2 @@
+# Ignore common system files
+__pycache__/
