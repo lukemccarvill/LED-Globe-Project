@@ -3,17 +3,11 @@
 #
 # This script creates a crisp 4000x2000mm gores-based SVG map with ability to enable the gores, countries, and LED placements.
 #   it can allow you to manually move LED marker placements in QGIS (or similar GIS software) by moving the GeoJSON dot vectors using the manual mode TRUE
-#   it gives you helpful information about which countries need LEDs
+#   it gives you helpful information about which countries need LEDs (due to failed auto placement)
 #   it draws an equator, if you want
 #   it creates a pick-and-place Excel file with sheets for each gore-half to be manufactured. The global csv is likely not useful and just a transient step.
-#   ensure you've deleted led_positions_for_manual_edit.geojson if you're trying to get a new one
 #   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
-# Future work:
-#   gore splitting into 24 pieces, choosing which section to focus on.
-#   physical connections, tabs between gore strips
-#   cut out "stretch marks" (visual artifacts of plotting the simplified country shapefiles across gores)
-#   could add a population density option with the turbo colourmap as another visual
-#   many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
+# Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
 
 import os
 import geopandas as gpd
