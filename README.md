@@ -15,7 +15,7 @@ If we imagine **all** of this energy being supplied by solar photovoltaic (PV) a
 
 Alternatively, the analysis can be refined to calculate the PV required to replace only the portion of energy currently provided by fossil fuels (140 of the 172 PWh). For this, 80 TWp of solar would need to be installed, resulting in an area of 400 000 km² needed for the PV infrastructure. This would require just 0.0783% of the Earth’s surface area to be allocated to solar generation infrastructure, or 0.270% of its land mass.
 
-With the calculated requirement of 0.1002% of Earth’s surface area to be dedicated to PV arrays, this results in a mere 51.1 cm2 of total area on the model: just larger than a **7 cm × 7 cm square**. Put out your hands and imagine this 7x7 cm square – this is enough to power the entire (scaled-down) globe! This supplies 1.02 Wp in the scaled-down sphere: an average power of 0.2 W. This would be enough power, on average, to run our 3500 LEDs at 2.12 V, 23.7 μA.
+With the calculated requirement of 0.1002% of Earth’s surface area to be dedicated to PV arrays, this results in a mere 51.1 cm<sup>2</sup> of total area on the model: just larger than a **7 cm × 7 cm square**. Put out your hands and imagine this 7x7 cm square – this is enough to power the entire (scaled-down) globe! This supplies 1.02 Wp in the scaled-down sphere: an average power of 0.2 W. This would be enough power, on average, to run our 3500 LEDs at 2.12 V, 23.7 μA.
 
 
 # Challenges and Learnings
@@ -32,8 +32,8 @@ The first interesting finding was just how unequal the world's energy usage is w
 This is only the top 30 countries – let's instead include all 212 entities (193 countries plus some dependencies, microstates, etc. included by *Our World in Data*). The dominance in energy consumption seen from the top few nations – particularly China – is incredible.
 
 <p align="center">
-  <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="450"/>
-  <img src="images/Graph_PEC_AllCountries_LogScale.png" alt="Graph of All Countries (Log Scale)" width="450"/>
+  <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="550"/><br>
+  <img src="images/Graph_PEC_AllCountries_LogScale.png" alt="Graph of All Countries (Log Scale)" width="550"/>
   <br>
   <strong>Figures 2 and 3:</strong> Comparison of All Countries' Energy Consumption (Linear vs. Log Scale)
 </p>
@@ -78,35 +78,63 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
 
 <p align="center">
   <img src="images/GoresToTurboRaster_slow.gif" alt="see fig title" width="550"/>
+  <br>
   <img src="images/GoresToLEDMarkers_slow.gif" alt="see fig title" width="550"/>
   <br>
-  <strong>Figures 7 and 8:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Left) and SVG with Red LED Markers (Right)
+  <strong>Figures 7 and 8:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Top) and SVG with Red LED Markers (Bottom)
 </p>
+
+
+# Results
+
+### 12-Gore Scalable Vector Graphic Map
+
+This leads us to the final visual result of the project: a 4000 mm wide by 2000 mm tall SVG. This graphic includes all 12 gores along with the 3467 LED markers as red rectangles of size 3.5 mm x 2 mm (the footprint of an 0805 SMD LED plus some small breathing room).
+
 
 
 <p align="center">
   <img src="outputs/full_map_4m_by_2m.svg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 9:</strong> SVG title
+  <strong>Figure 9:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers
 </p>
 
+You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice. Note that the green "stretch marks" between gores are simply visual artifacts from the simplified multipolygonal countries being plotted across gore boundaries, and would not be included in the manufacturing. Editing out these stretch marks is a future task, and until then, they serve as a neat visual indicator of the deformation necessary to transform a sphere onto flat segments.
 
-- Final SVG that people can zoom into using open link in new tab.
-- include zoom-in on china too, to see red rectangles.
+Figure 10 below enables you to see the rectangular LED markers more clearly. This figure also demonstrates just how closely packed the LEDs are for these highly populated nations.
 
-### Misc (work in progress)
+<p align="center">
+  <img src="images/East_Asia_Zoomed.png" alt="see fig title" width="900"/>
+  <br>
+  <strong>Figure 10:</strong> Zoomed Capture from the SVG of East Asia
+</p>
 
-There were many other challenges along the way, such as:
-- How do we feasibly produce PCB's this large (*recall – the circumfrence of this globe is 4 m long!*), even if they are in gore strips?
-- How to deal with significant concentrations of LED placements for highly-populated areas (particularly eastern China), and how closely can we tesselate these LEDs safely on the PCB?
-- How do we decide where to place a nation's LEDs if it is too small to fit them? Singapore, for example, was allocated 20 LEDs but only enough tiles for two!
-- ... and many programming/debugging challenges with these large datasets!
+ South Korea is a good example of the space limitations using this methodology – its landmass does not even have enough tiles to fit all of its 71 LEDs. I therefore needed to manually place the remaining LEDs around the coastline after the `led_allocator.py` script informed me that it could only automatically place 41 of its 71 allocated LEDs. Ten nations were in this predicament, such as Singapore, Bahrain, and the UAE.
 
-# Future Work (work in progress)
+### Pick-and-Place Coordinates for PCB Manufacturing
 
-- This project uses population density within a given country to determine where geographically the country's allocated LEDs should go, since energy usage rasters are not readily available (compared to population density rasters, which are). This should instead be changed to utilize actual energy usage rasters OR using nighttime lights rasters, like from Earth Observation Group.
-- All LEDs are run electrically in parallel with equal current to provide the same brightness. However, in the future, it would be best to utilize current-limiting resistors (of the same 0805 SMD style) on the back of the flexible PCB in order to have variable-brightness LEDs. This would enable more energy-intensive nations like Singapore to have visually brighter LEDs rather than just more of them.
-- Draw the 7x7cm square in the ocean just to show the size needed.
+The other useful output from this project is the creation of an Excel workbook containing a sheet for each half-gore which contains LEDs, along with a Master sheet with the totals for each gore half. These sheets contain the X and Y coordinates of the centroid of each surface-mounted component in mm, which is the standard for electronic design automation (EDA).
+
+<p align="center">
+  <img src="images/Pick-and-Place_Excel_Screenshot.png" alt="see fig title" width="900"/>
+  <br>
+  <strong>Figure 11:</strong> Screen Capture of Pick-and-Place Excel Workbook
+</p>
+
+Interestingly, as seen in Figure 11, there are six gore halves which contain zero LEDs – can you identify them on the SVG map?
+
+# Future Work
+
+- This project uses population density within a given country to determine where geographically the country's allocated LEDs should go, since energy usage rasters are not readily available (compared to population density rasters, which are). This should instead be changed to utilize actual energy usage rasters or using <ins>nighttime light rasters</ins>, like from [Earth Observation Group](https://eogdata.mines.edu/products/dmsp/).
+- All LEDs are currently run electrically in parallel with equal current to provide the same brightness. However, in the future, it would be best to utilize current-limiting resistors (of the same 0805 SMD style) on the back of the flexible PCB in order to have <ins>variable-brightness LEDs</ins>. This would enable more energy-intensive nations like Singapore to have visually brighter LEDs rather than just more of them.
+- <ins>Draw the 51.1 cm<sup>2</sup> area PV requirement</ins>, likely as a square or circle, in the ocean just to show the size needed. Ideally, the PV would be real and would power the actual globe, perhaps using some sort of spotlight concentrated on this spot or even spread out logically around the globe in sensible places for PV (such as Nevada and other desert-like locations near the equator). This would mean adding locations for pads and vias for the solar cells to connect electrically.
+- <ins>Cut out the "stretch marks" between gores</ins> in the SVG.
+- <ins>Add physical connections</ins>, like tabs and/or zero-ohm resistors, added strategically at the edges of the gore halves to assemble them.
+- There should be an option in the code to <ins>isolate a specific half-gore</ins> rather than displaying all 12 full gores.
+- <ins>Remove hard-coded variables</ins>. Many of the functions are not appropriately generalizable using variables; num_gores, width, and height should really be editable in main and the script should function with arbitrary values, but those values are hardcoded in other scripts. There should also likely be some algorithmic checking to see if the proposed dimensions work with the proposed SMD sizes.
+- Could add an option for users to do the population density turbo colourmap visual like in Figure 7; that was created during testing and is not currently part of this repo.
+- Plan how to practically power/assemble/display this model in a practical environment
+- Represent the 33 "missing" LEDs somehow; the top 113 countries own the first 3467 of 3500, leaving the remaining 99 entities to somehow share the last 33 LEDs.
 
 
 # Sources and Software Used
@@ -126,12 +154,14 @@ There were many other challenges along the way, such as:
 - [Inkscape](https://inkscape.org/release/inkscape-1.3.2/)
     - This free and open source vector graphics editor was useful for inspecting the SVG (Scalable Vector Graphics) outputs.
 - [KiCad](https://www.kicad.org/download/)
-    - This free software suite for electronic design automation (EDA) was useful for learning about the requirements and workflow for PCB manufacturing, particlarly with respect to the footprints of SMD LEDs.
+    - This free software suite for EDA was useful for learning about the requirements and workflow for PCB manufacturing, particlarly with respect to the footprints of SMD LEDs.
 
 # Credits
 
 ### Primary Author: Luke McCarvill
-Many thanks to Dr. Andrew Swingler, my supervisor in the UPEI Faculty of Sustainable Design Engineering, for coming up with this idea and supporting the process. Riley Fitzpatrick, my coworker and fellow UPEI FSDE student, was also instrumental, particularly in the early stages of the project, performing many of the scaling and PV calculations.
+Many thanks to Dr. Andrew Swingler, my supervisor in the UPEI Faculty of Sustainable Design Engineering, for coming up with this idea and supporting the process. Riley Fitzpatrick, my coworker and fellow UPEI FSDE student, was also instrumental, particularly in the early stages of the project, performing many of the scaling and PV calculations. 
+
+Thank you to Dr. Eric Galbraith of McGill University for the idea of using the nighttime lights instead of population density – this will hopefully be incorporated in future versions.
 
 ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solving process.
 
