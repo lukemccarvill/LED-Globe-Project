@@ -39,7 +39,7 @@ This is only the top 30 countries – let's instead include all 212 entities (19
 </p>
 
 
-### Number of LEDs (work in progress)
+### Number of LEDs
 
 Even with almost 3500 LEDs, we can only represent top 113-consuming countries. This means that any entity that uses less energy than Moldova – including nations like Nepal, Cameroon, Latvia, Luxembourg, and the Democratic Republic of the Congo – will not be represented on the map with even one LED. For a small island nation like the Cook Islands (#204 on the list), we would need over 180,000 LEDs globally for Cook Islands to be allocated a single diode.
 
@@ -133,7 +133,7 @@ Interestingly, as seen in Figure 11, there are six gore halves which contain zer
 - There should be an option in the code to **isolate a specific half-gore** rather than displaying all 12 full gores.
 - **Remove hard-coded variables**. Many of the functions are not appropriately generalizable using variables; num_gores, width, and height should really be editable in main and the script should function with arbitrary values, but those values are hardcoded in other scripts. There should also likely be some algorithmic checking to see if the proposed dimensions work with the proposed SMD sizes.
 - Could add an option for users to do the population density turbo colourmap visual like in Figure 7; that was created during testing and is not currently part of this repo.
-- Plan how to practically power/assemble/display this model in a practical environment
+- Plan how to practically power/assemble/display this model whatever environment it will be displayed in.
 - Represent the 33 "missing" LEDs somehow; the top 113 countries own the first 3467 of 3500, leaving the remaining 99 entities to somehow share the last 33 LEDs.
 
 
@@ -165,6 +165,59 @@ Thank you to Dr. Eric Galbraith of McGill University for the idea of using the n
 
 ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solving process.
 
-# Instructions for Installation and Usage (work in progress)
-- Clone the repo...
-- If you wish to manually edit the LED positions, you can place an edited GeoJSON file in the `data/` folder (such as the one I've supplied using my own edits) and set the `use_edited_geojson` flag to `True` in `src/main.py`. The script will automatically load this file instead of generating a new one. If no such file exists or the `use_edited_geojson` flag is set to `False`, the script will generate a new GeoJSON file for manual manipulation.
+# Instructions for Installation and Usage
+
+*This was my first Python project, and first project using Git, so my apologies if the files or instructions are not laid out intuitively. I used VS Code, which I recommend to use if you are also new to this area. These instructions should work regardless of what code editor you use, though.*
+
+### 1. Clone the repository
+First, clone the repository to your local machine:  
+
+`git clone https://github.com/your-username/python-led-placing.git`  
+`cd python-led-placing`
+
+### 2. Install dependencies
+Make sure you have Python 3.x installed. Install the required dependencies by running:  
+
+`pip install -r requirements.txt`  
+
+This will install the necessary Python libraries like geopandas, pandas, rasterio, and matplotlib.
+
+### 3. Prepare Your Data Files
+Ensure you have the following files correctly placed in the `data/` directory:
+- Country shapefile: `ne_10m_admin_0_countries.shp` (including `.shx`, `.dbf`, etc.)
+- Population density raster: `gpw_v4_population_density_rev11_2020_30_min.tif`
+- Energy data Excel file: `Country Energy Data.xlsx`
+Optional: If you have a previously edited GeoJSON file, place it in the `data/` directory and make sure only one `.geojson` file is present.
+
+### 4. Adjust Parameters
+In `main.py`, you can adjust the parameters to suit your project needs:
+- `draw_gores`, `draw_countries`, `draw_leds`, `draw_equator`: Toggle whether to draw the gores, countries, LED markers, and/or equator.
+- `manual_manipulation`: Set this to `True` to manually adjust LED positions via a GeoJSON file. The script will stop halfway through and allow you to edit the file in a GIS software. When satisfied with your edits, save the edited GeoJSON in the `/data` folder and then enable the `use_edited_geojson` flag.
+- `use_edited_geojson`: Set this to `True` if you want to use a previously edited GeoJSON file. Ensure there is exactly one GeoJSON file in the `/data` folder (such as the one I've supplied based my own edits). The script will automatically load this file instead of generating a new one. If no such file exists or this flag is set to `False`, the script will generate a new GeoJSON file for manual manipulation.
+- `create_coords_for_manufact`: Set this to `True` to create the pick-and-place spreadsheet with the LED coordinates on the gores.
+- *In the future, the dimensions and number of gores variables will hopefully function with arbitrary values, but currently, those values are hardcoded.*
+
+### 5. Run the Main Script
+Run the `main.py` script to generate the 4000x2000mm SVG map:  
+
+`python src/main.py`  
+
+Make sure you close any open files (e.g., in QGIS or Excel) to avoid permission errors.
+
+### 6. View the Output
+- The output SVG will be shown in Matplotlib; this figure should pop up automatically if there are no errors. Close any existing open Matplotlib figures before running the script.
+- The output SVG file will be saved in the `outputs/` folder as `full_map_4m_by_2m.svg`.
+- If manual manipulation is enabled, a GeoJSON file will be saved in the `transients/` folder as `led_positions_for_manual_edit.geojson`. You can open this file in QGIS or another GIS tool to manually adjust LED positions.
+
+### 7. Pick-and-Place File
+If you enabled `create_coords_for_manufact`, a pick-and-place Excel file with the LED coordinates for each gore half will be created. Each sheet in the file corresponds to one gore half for manufacturing. This `gorehalf_coordinates_with_sheets.xlsx` will be found in the `/outputs` folder.
+
+### Contributing
+
+Contributions are welcome! If you have ideas for improving this project, feel free to:
+
+- **Fork the repository** and submit a pull request with your improvements.
+- **Report issues** or bugs via GitHub's issue tracker.
+- **Start discussions** and/or ask questions in the Discussions tab.  
+
+Whether you're interested in adding new features, fixing bugs, or simply suggesting improvements, your input is greatly appreciated. Let's work together to make this project even better!
