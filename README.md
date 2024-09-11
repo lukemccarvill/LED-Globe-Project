@@ -11,7 +11,7 @@ This 1.27 m diameter is no coincidence – this corresponds to 5.1 m<sup>2</sup>
 Taking the Earth's total annual energy consumption (*primary energy* – not just electricity) of ~172 PWh and computing an average power of 20.4 TW over 8760 hours per year, we find that the scaled-down power draw of our model Earth is just over 0.2 Watts. 
 Using green 0805 SMD (surface-mounted device) LEDs, it was found that an acceptable brightness could be generated using a mere 23.7 μA (*yes – 0.0237 mA*) at 2.12 V. With a supplied power of 0.2 W, almost 4000 of these LEDs could be powered. 3500 LEDs was chosen to provide a decent balance of brightness and quantity.
 
-If we imagine **all** of this energy being supplied by solar photovoltaic (PV) and neglecting energy storage and losses in transmission, we would need about 102 TWp (*peak* or *rated*) of solar PV. This would correspond to about 500,000 km<sup>2</sup> of solar PV, assuming a peak sun irradiance of 1000 W/m<sup>2</sup>, an average sun irradiance of 200 W/m<sup>2</sup> (capacity factor of 0.2), and a PV module efficiency of 20%. This was based on the climate in Prince Edward Island, Canada, but this obviously varies by geography (and is significantly better near the equator!). This corresponds to **dedicating about 0.1% of the Earth's surface area** to solar power generation infrastructure – or  about 0.345% of its land surface area.
+If we imagine **all** of this energy being supplied by solar photovoltaic (PV) and neglect energy storage and losses in transmission, we would need about 102 TWp (*peak* or *rated*) of solar PV. This would correspond to about 500,000 km<sup>2</sup> of solar PV, assuming a peak sun irradiance of 1000 W/m<sup>2</sup>, an average sun irradiance of 200 W/m<sup>2</sup> (capacity factor of 0.2), and a PV module efficiency of 20%. This was based on the climate in Prince Edward Island, Canada, but this obviously varies by geography (and is significantly better near the equator!). This corresponds to **dedicating about 0.1% of the Earth's surface area** to solar power generation infrastructure – or  about 0.345% of its land surface area.
 
 Alternatively, the analysis can be refined to calculate the PV required to replace only the portion of energy currently provided by fossil fuels (140 of the 172 PWh). For this, 80 TWp of solar would need to be installed, resulting in an area of 400 000 km² needed for the PV infrastructure. This would require just 0.0783% of the Earth’s surface area to be allocated to solar generation infrastructure, or 0.270% of its land mass.
 
@@ -61,6 +61,16 @@ Zooming into North America, we can inspect the tessellation of the LED markers. 
   <strong>Figure 5:</strong> North American LED Markers and Population Density Raster in QGIS
 </p>
 
+For reference, here are the surface-mounted LEDs I'm referring to:
+
+<p align="center">
+  <img src="images/smd-led-size-comparison.jpg" alt="see fig title" width="900"/>
+  <br>
+  <strong>Figure 6:</strong> SMD LEDs on a Millimetre Scale [<a href="https://www.pcboard.ca/led-0805" target="_blank">Source</a>]
+</p>
+
+
+
 ### Transforming Mercator Projection Coordinates to Gores
 
 Once we have the LEDs marked as coordinates in a GIS software, we then somehow need to get this beautiful creation from QGIS onto gores. Per [Wikipedia](https://en.wikipedia.org/wiki/Gore_(segment)), "A gore is a sector of a curved surface or the curved surface that lies between two close lines of longitude on a globe and may be flattened to a plane surface with little distortion". While we have selected a quantity of 12 gore slices and flexible PCB material, this is still a projection after all, and thus there will still be distortion when attempting to flatten spherical segments onto flat gore strips. 
@@ -70,7 +80,7 @@ Spiros Staridas created a beautiful 12-gore map which I used as a reference:
 <p align="center">
   <img src="images/twelve-stripes-of-the-globe-featured-image-2048x1072.jpg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 6:</strong> "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Link</a>]
+  <strong>Figure 7:</strong> "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Source</a>]
 </p>
 
 
@@ -81,7 +91,7 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
   <br>
   <img src="images/GoresToLEDMarkers_slow.gif" alt="see fig title" width="550"/>
   <br>
-  <strong>Figures 7 and 8:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Top) and SVG with Red LED Markers (Bottom)
+  <strong>Figures 8 and 9:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Top) and SVG with Red LED Markers (Bottom)
 </p>
 
 
@@ -96,7 +106,7 @@ This leads us to the final visual result of the project: a 4000 mm wide by 2000 
 <p align="center">
   <img src="outputs/full_map_4m_by_2m.svg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 9:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers
+  <strong>Figure 10:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers
 </p>
 
 You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice. Note that the green "stretch marks" between gores are simply visual artifacts from the simplified multipolygonal countries being plotted across gore boundaries, and would not be included in the manufacturing. Editing out these stretch marks is a future task, and until then, they serve as a neat visual indicator of the deformation necessary to transform a sphere onto flat segments.
@@ -106,7 +116,7 @@ Figure 10 below enables you to see the rectangular LED markers more clearly. Thi
 <p align="center">
   <img src="images/East_Asia_Zoomed.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 10:</strong> Zoomed Capture from the SVG of East Asia
+  <strong>Figure 11:</strong> Zoomed Capture from the SVG of East Asia
 </p>
 
  South Korea is a good example of the space limitations using this methodology – its landmass does not even have enough tiles to fit all of its 71 LEDs. I therefore needed to manually place the remaining LEDs around the coastline after the `led_allocator.py` script informed me that it could only automatically place 41 of its 71 allocated LEDs. Ten nations were in this predicament, such as Singapore, Bahrain, and the UAE.
@@ -118,10 +128,10 @@ The other useful output from this project is the creation of an Excel workbook c
 <p align="center">
   <img src="images/Pick-and-Place_Excel_Screenshot.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 11:</strong> Screen Capture of Pick-and-Place Excel Workbook
+  <strong>Figure 12:</strong> Screen Capture of Pick-and-Place Excel Workbook
 </p>
 
-Interestingly, as seen in Figure 11, there are six gore halves which contain zero LEDs – can you identify them on the SVG map?
+Interestingly, as seen in Figure 12, there are six gore halves which contain zero LEDs – can you identify them on the SVG map?
 
 # Future Work
 
@@ -132,7 +142,7 @@ Interestingly, as seen in Figure 11, there are six gore halves which contain zer
 - **Add physical connections**, like tabs and/or zero-ohm resistors, added strategically at the edges of the gore halves to assemble them.
 - There should be an option in the code to **isolate a specific half-gore** rather than displaying all 12 full gores.
 - **Remove hard-coded variables**. Many of the functions are not appropriately generalizable using variables; num_gores, width, and height should really be editable in main and the script should function with arbitrary values, but those values are hardcoded in other scripts. There should also likely be some algorithmic checking to see if the proposed dimensions work with the proposed SMD sizes.
-- Could add an option for users to do the population density turbo colourmap visual like in Figure 7; that was created during testing and is not currently part of this repo.
+- Could add an option for users to do the population density turbo colourmap visual like in Figure 8; that was created during testing and is not currently part of this repo.
 - Plan how to practically power/assemble/display this model whatever environment it will be displayed in.
 - Represent the 33 "missing" LEDs somehow; the top 113 countries own the first 3467 of 3500, leaving the remaining 99 entities to somehow share the last 33 LEDs.
 
@@ -214,10 +224,9 @@ If you enabled `create_coords_for_manufact`, a pick-and-place Excel file with th
 
 ### Contributing
 
-Contributions are welcome! If you have ideas for improving this project, feel free to:
+Contributions are welcome! If you'd like to work on any of those "future work" items or have other ideas for improving this project, feel free to:
 
 - **Fork the repository** and submit a pull request with your improvements.
 - **Report issues** or bugs via GitHub's issue tracker.
 - **Start discussions** and/or ask questions in the Discussions tab.  
 
-Whether you're interested in adding new features, fixing bugs, or simply suggesting improvements, your input is greatly appreciated. Let's work together to make this project even better!
