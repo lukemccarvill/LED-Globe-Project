@@ -222,6 +222,8 @@ Make sure you close any open files (e.g., in QGIS or Excel) to avoid permission 
 ### 7. Pick-and-Place File
 If you enabled `create_coords_for_manufact`, a pick-and-place Excel file with the LED coordinates for each gore half will be created. Each sheet in the file corresponds to one gore half for manufacturing. This `gorehalf_coordinates_with_sheets.xlsx` will be found in the `/outputs` folder.
 
+For manufacturing, the flexible PCB can be designed with two layers: one dedicated to 2.12 V and the other to 0 V. This strategy simplifies the design, similar to solar PV cell design, by eliminating the need for thousands of individual traces and ensuring even power delivery across all LEDs. Hooking up the power supply at the North Pole would also probably be best. Then, these strips can be placed on some sphere like an inflatable balloon or even a rigid ball.
+
 ### Contributing
 
 Contributions are welcome! If you'd like to work on any of those "future work" items or have other ideas for improving this project, feel free to:
