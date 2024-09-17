@@ -1,5 +1,7 @@
 # Project Overview
 
+*this v2 branch is for implementing the nighttime lights rather than using population density*
+
 This project is an **open-source platform for defining and exploring global energy distribution solutions**. It is designed to serve as a **template for building solution-based scenarios**, particularly focused on future energy systems like a **global solar grid** or other regional energy models. The goal is to help define the problem of energy distribution at a global scale, inviting others to **contribute** and use this **platform to explore potential solutions**.
 
 The project uses a **1.27-metre-diameter spherical globe** made up of **12 gores** constructed from flexible printed circuit boards (PCBs) with surface-mounted LEDs. These 12 gores are divided in half at the equator, resulting in **24 total strips** of flexible PCB (each 1m x 0.333m in size). 
