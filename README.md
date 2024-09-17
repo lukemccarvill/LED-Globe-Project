@@ -1,15 +1,14 @@
 # Project Overview
 
-This is meant to be a thought-provoking open-source project to model the globe's energy demand in a visually striking manner. The chosen method of display is a 1.27-metre-diameter spherical globe made up of 12 gores constructed from flexible printed circuit board (PCB) with surface-mounted LEDs. These 12 gores in turn are divided in half at the equator, resulting in 24 total strips (each 1m x 0.333m in size) of flexible PCB.
+This project is an **open-source platform for defining and exploring global energy distribution solutions**. It is designed to serve as a **template for building solution-based scenarios**, particularly focused on future energy systems like a **global solar grid** or other regional energy models. The goal is to help define the problem of energy distribution at a global scale, inviting others to **contribute** and use this **platform to explore potential solutions**.
 
-This program takes in geographical data *(shape file from Natural Earth using de facto boundaries)*, total energy usage per country *(sourced from Our World in Data)*, and a global population density raster *(GeoJSON sourced from SEDAC)*. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place CSV sheets for PCB manufacturing.
+The project uses a **1.27-metre-diameter spherical globe** made up of **12 gores** constructed from flexible printed circuit boards (PCBs) with surface-mounted LEDs. These 12 gores are divided in half at the equator, resulting in **24 total strips** of flexible PCB (each 1m x 0.333m in size). 
 
-### More Than Just an Artistic Display
+This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global population density raster *(GeoJSON sourced from SEDAC)*. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
 
-This project is not only a striking visual representation of global energy usage; it also serves as a **template for building solution-based scenarios**, particularly focused on the future of global energy systems like a **global solar grid**. This is the **problem definition stage** – we've laid the groundwork for understanding energy distribution at a global scale.
+### A Striking Visual Representation
 
-We invite others to **contribute** and use this **open-source platform** to explore potential solutions, whether it's for a global solar grid, multiple regional grids, or other innovative energy systems. The project is designed to be a starting point for more than just data visualization – it's a call for collaboration in shaping real-world energy solutions.
-
+While the primary aim of this project is to provide a **platform for problem-solving** in global energy distribution, it also serves as an **artistic and visually striking representation** of the world’s energy demand. The LED globe offers a powerful way to engage with global energy data through a tangible, functional model. This artistic element helps communicate the disparities in energy usage across regions and countries, making the data more accessible to a wider audience.
 
 # Background
 
