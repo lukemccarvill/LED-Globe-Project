@@ -2,6 +2,7 @@
 - added downsampled nightlight to /transients
 - added rasterdownsampler to /src
 - added testingNightlight and logHisto to /testingScripts
+- could consider increasing resolution of shape file (i.e. not simplifying the geometry so much)
 
 # Project Overview
 

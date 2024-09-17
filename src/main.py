@@ -1,13 +1,12 @@
-# Master script for a repo created by Luke McCarvill in Aug/Sept 2024. Significant ChatGPT usage throughout! This was my first Python project.
-# Support from Dr. Andrew Swingler and Riley Fitzpatrick.
+# Sept 2024: Trying to change pop density raster to nightlight raster
 #
-# This script creates a crisp 4000x2000mm gores-based SVG map with ability to enable the gores, countries, and LED placements.
-#   it can allow you to manually move LED marker placements in QGIS (or similar GIS software) by moving the GeoJSON dot vectors using the manual mode TRUE
-#   it gives you helpful information about which countries need LEDs (due to failed auto placement)
-#   it draws an equator, if you want
-#   it creates a pick-and-place Excel file with sheets for each gore-half to be manufactured. The global csv is likely not useful and just a transient step.
-#   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
-# Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
+# updated raster path
+# updated geojson output path
+# updated output svg filename
+
+# need to change all the details with population, country (if relevant)
+# need to add option to use downsampler script somehow -- could just be a standalone script that people run so that I don't need to deal with the 11 GB raster at all.
+
 
 import os
 import geopandas as gpd
@@ -33,12 +32,15 @@ if not os.path.exists(output_dir):
 
 # paths for data, transients, and output files
 shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+# raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+raster_path = os.path.join(transient_dir, 'downsampled_nightlight_30arcmin_nearestN.tif')
 country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
 # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
-geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
-output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
+# geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
+geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit_nightlight.geojson')
+# output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
+output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m_nightlight.svg')
 
 # Parameters for the final output
 final_width = 4 # meters
@@ -50,9 +52,9 @@ draw_gores = True  # set to False if you don't want gore outlines
 draw_equator = True # set to True if you want a black line along the equator to divide gore halves
 draw_countries = True  # set to False if you don't want country mappings
 draw_leds = True  # set to False if you don't want LED markings
-use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
+use_edited_geojson = False  # Set to True to use a previously edited GeoJSON file from the data folder
 manual_manipulation = False  # set to True to enable manual manipulation mode
-create_coords_for_manufact = True  # Toggle this to create gore half coordinates for pick-and-place
+create_coords_for_manufact = False  # Toggle this to create gore half coordinates for pick-and-place
 
 # Load the country shapefile and LED data
 world = gpd.read_file(shapefile_path)
