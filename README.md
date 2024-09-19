@@ -1,8 +1,15 @@
 *this v2 branch is for implementing the nighttime lights rather than using population density*
+This branch is still a work in progress. Current notes:
 - added downsampled nightlight to /transients
 - added rasterdownsampler to /src
 - added testingNightlight and logHisto to /testingScripts
 - could consider increasing resolution of shape file (i.e. not simplifying the geometry so much)
+- need to udpate this readme to include the updates from the nightlight raster
+- The cutting around the shape file has problematic implications for small places/coastlines, because it excludes tiles that could have LEDs. like hawaii maybe
+   - Maybe, for situations where a tile is being sliced up (on edges) the cutting algorithm should assign the tile to the entity (country) that has the largest section of it. This way, if a tile is shared ex. 40% Canada, 30% USA, 30% ocean, then Canada gets the tile
+- Could make shape file simplification for the geren country mapping less coarse; make it higher res for display purposes. The file size is large, but if we split it into 24 pieces anyway, this should help to alleviate this issue.
+- see also the notes at the top of main
+
 
 # Project Overview
 
