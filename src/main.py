@@ -4,8 +4,11 @@
 # updated geojson output path
 # updated output svg filename
 
+# unless create_coords_for_manufact is true, we shouldn't be recreating led_coords_global.csv -- add this logic
 # need to change all the details with population, country (if relevant)
 # need to add option to use downsampler script somehow -- could just be a standalone script that people run so that I don't need to deal with the 11 GB raster at all.
+# The cutting around the shape file has problematic implications for small places/coastlines, because it excludes tiles that could have LEDs. like hawaii maybe
+# Could make shape file simplification for the green country mapping less coarse; make it higher res for display purposes. The file size is large, but if we split it into 24 pieces anyway, this should help to alleviate this issue.
 
 
 import os
@@ -33,7 +36,7 @@ if not os.path.exists(output_dir):
 # paths for data, transients, and output files
 shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
 # raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
-raster_path = os.path.join(transient_dir, 'downsampled_nightlight_30arcmin_nearestN.tif')
+raster_path = os.path.join(transient_dir, 'downsampled_nightlight_30arcmin_cubic.tif')
 country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
 # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
@@ -52,9 +55,9 @@ draw_gores = True  # set to False if you don't want gore outlines
 draw_equator = True # set to True if you want a black line along the equator to divide gore halves
 draw_countries = True  # set to False if you don't want country mappings
 draw_leds = True  # set to False if you don't want LED markings
-use_edited_geojson = False  # Set to True to use a previously edited GeoJSON file from the data folder
-manual_manipulation = False  # set to True to enable manual manipulation mode
-create_coords_for_manufact = False  # Toggle this to create gore half coordinates for pick-and-place
+use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
+manual_manipulation = True  # set to True to enable manual manipulation mode
+create_coords_for_manufact = True  # Toggle this to create gore half coordinates for pick-and-place
 
 # Load the country shapefile and LED data
 world = gpd.read_file(shapefile_path)
@@ -107,7 +110,11 @@ if draw_leds:
 
 # create the coordinates, centred at bottom-left of each gore half, if specified
 if create_coords_for_manufact:
-    create_gorehalf_coords()
+    # Use transient_dir to construct the full path to the CSV file
+    csv_input_path = os.path.join(transient_dir, 'led_coordinates_global.csv')
+    
+    # Pass the path as an argument to the function
+    create_gorehalf_coords(csv_input_path=csv_input_path)
 
 # Save the final output with tight bounding box and exact dimensions
 fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
