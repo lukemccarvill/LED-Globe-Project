@@ -4,7 +4,7 @@ from rasterio.enums import Resampling
 
 # Path to the large GeoTIFF
 input_path = r"C:\Users\19023\Downloads\VNL_npp_2023_global_vcmslcfg_v2_c202402081600.average_masked.dat.tif\VNL_npp_2023_global_vcmslcfg_v2_c202402081600.average_masked.dat.tif"
-output_path = r"C:\Users\19023\Downloads\Swingler\Python LED Placing\Nightlight\downsampled_nightlight_30arcmin_nearestN.tif"
+output_path = r"C:\Users\19023\Downloads\Swingler\Python LED Placing\Nightlight\downsampled_nightlight_30arcmin_average.tif"
 
 # Desired resolution in degrees (0.5 degrees = 30 arc-minutes)
 target_resolution = 0.5
@@ -27,7 +27,8 @@ with rasterio.open(input_path) as dataset:
             new_height,
             new_width
         ),
-        resampling=Resampling.nearest # can also use .bilinear, which appears blurrier but smoother. same reso, just different resampling algo
+        resampling=Resampling.average # I liked the look of cubic (as opposed to nearest neighbour) compared to the native resolution, but there is always give and take with resampling. 
+        # Different algo options: https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
     )
     
     # Saturate values between 0 and 150
