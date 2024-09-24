@@ -1,5 +1,6 @@
 *This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch. <span style="color: green;">Edits have been marked in green.</span>*
 
+$\color{#FF0000}{Test123!}$
 
 # Project Overview
 
