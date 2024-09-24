@@ -116,7 +116,7 @@ This leads us to the final visual result of the project: a 4000 mm wide by 2000 
 
 You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice. Note that the green "stretch marks" between gores are simply visual artifacts from the simplified multipolygonal countries being plotted across gore boundaries, and would not be included in the manufacturing. Editing out these stretch marks is a future task, and until then, they serve as a neat visual indicator of the deformation necessary to transform a sphere onto flat segments.
 
-Figure 10 below enables you to see the rectangular LED markers more clearly. This figure also demonstrates just how closely packed the LEDs are for these highly populated nations.
+Figure 11 below enables you to see the rectangular LED markers more clearly. This figure also demonstrates just how closely packed the LEDs are for these highly populated nations.
 
 <p align="center">
   <img src="images/East_Asia_Zoomed.png" alt="see fig title" width="900"/>
