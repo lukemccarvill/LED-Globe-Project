@@ -1,6 +1,6 @@
-*This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch. <span style="color: green;">Edits have been marked in green.</span>*
+*This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch. $\color{#6aa84f}{Edits~have~been~marked~in~green.}$
 
-$\color{#FF0000}{Test123!}$
+$\color{#6aa84f}{Test123!}$
 
 # Project Overview
 
@@ -8,7 +8,8 @@ This project is an **open-source platform for defining and exploring global ener
 
 The project uses a **1.27-metre-diameter spherical globe** made up of **12 gores** constructed from flexible printed circuit boards (PCBs) with surface-mounted LEDs. These 12 gores are divided in half at the equator, resulting in **24 total strips** of flexible PCB (each 1m x 0.333m in size). 
 
-This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global <span style="color: green;">nighttime lights raster *(GeoJSON sourced from Earth Observation Group)*</span>. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
+This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global $\color{#6aa84f}{nighttime~lights~raster~(GeoJSON~sourced~from~Earth~Observation~Group)}$. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
+
 
 ### A Striking Visual Representation
 
@@ -54,15 +55,28 @@ Even with almost 3500 LEDs, we can only represent the top 113-consuming countrie
 
 Now, we know how many LEDs that a given country should have, but how do we go about deciding where to place each LED within a given country? Given that energy usage rasters (geographical data) are not readily available at a global scale, the next best option that I thought of was using population density. These GeoTiff rasters are readily available in many resolutions and likely track well enough with energy usage that they would appear to be a reasonable analogue for energy usage to most viewers of the model globe.
 
-<span style="color: green;">Then, Dr. Eric Galbraith of McGill University suggested that we utilize </span>[Nighttime Lights](https://eogdata.mines.edu/products/dmsp/)<span style="color: green;"> instead, as this geospatial data is also readily available and </span>[is even used to estimate GDP](https://blogs.worldbank.org/en/developmenttalk/measuring-quarterly-economic-growth-outer-space#:~:text=This%20elasticity%20can%20be%20used,of%206.5%20percent%20of%20GDP.). Therefore, within a given country, let's say China, we will place its 970 allocated LEDs in its brightest areas, and we will hope that these also closely align with the areas where most of China's energy is being used.
+$\color{#6aa84f}{Then,~Dr.~Eric~Galbraith~of~McGill~University~suggested~that~we~utilize}$ [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) $\color{#6aa84f}{instead~as~this~geospatial~data~is~also~readily~available~and}$ [is even used to estimate GDP](https://blogs.worldbank.org/en/developmenttalk/measuring-quarterly-economic-growth-outer-space#:~:text=This%20elasticity%20can%20be%20used,of%206.5%20percent%20of%20GDP.). Therefore, within a given country, let's say China, we will place its 970 allocated LEDs in its brightest areas, and we will hope that these also closely align with the areas where most of China's energy is being used.
 
 The following image shows the placement of the LEDs in QGIS:
 
 <p align="center">
   <img src="images/Global3500LEDs_nightlight.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS, <span style="color: green;">Now Based on Nightlight Raster</span>
+  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS $\color{#6aa84f}{,~Now~Based~on~Nightlight~Raster}$
 </p>
+
+<p align="center">
+  <img src="images/Global3500LEDs_nightlight.png" alt="see fig title" width="900"/>
+</p>
+
+**Figure 4:** Placement of 3647 LED Markers on a Mercator Projection in QGIS $\color{#6aa84f}{,~Now~Based~on~Nightlight~Raster}$
+
+<p align="center">
+  <img src="images/Global3500LEDs_nightlight.png" alt="see fig title" width="900"/>
+  <br>
+  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS <span style="color:#6aa84f;">, Now Based on Nightlight Raster</span>
+</p>
+
 
 Zooming into North America, we can inspect the tessellation of the LED markers. This density raster resolution (*30 arc-minute, approx. 55km*) was chosen specifically so that it could accommodate the size of an 0805 SMD LED footprint, which is about 3.5 mm long – snugly fitting inside of the ~3.6 mm side length of one of these tiles when scaled down. <span style="color: green;">*Note that this image below still depicts the LED placements from the population-density-based algorithm, but the illustration of the tile size is still just as valuable.*</span>
 
