@@ -1,6 +1,5 @@
-*This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch. <span style="color: green;">Edits have been marked in green.</span>*
-
-$\color{#6aa84f}{Test123!}$
+*This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch.*  
+🟢*Edits have been marked with this green dot* .
 
 # Project Overview
 
@@ -8,7 +7,7 @@ This project is an **open-source platform for defining and exploring global ener
 
 The project uses a **1.27-metre-diameter spherical globe** made up of **12 gores** constructed from flexible printed circuit boards (PCBs) with surface-mounted LEDs. These 12 gores are divided in half at the equator, resulting in **24 total strips** of flexible PCB (each 1m x 0.333m in size). 
 
-This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global <span style="color: green;">nighttime lights raster *(GeoJSON sourced from Earth Observation Group)*</span>. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
+This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global 🟢 nighttime lights raster *(GeoJSON sourced from Earth Observation Group)*. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
 
 ### A Striking Visual Representation
 
@@ -54,17 +53,17 @@ Even with almost 3500 LEDs, we can only represent the top 113-consuming countrie
 
 Now, we know how many LEDs that a given country should have, but how do we go about deciding where to place each LED within a given country? Given that energy usage rasters (geographical data) are not readily available at a global scale, the next best option that I thought of was using population density. These GeoTiff rasters are readily available in many resolutions and likely track well enough with energy usage that they would appear to be a reasonable analogue for energy usage to most viewers of the model globe.
 
-<span style="color: green;">Then, Dr. Eric Galbraith of McGill University suggested that we utilize </span>[Nighttime Lights](https://eogdata.mines.edu/products/dmsp/)<span style="color: green;"> instead, as this geospatial data is also readily available and </span>[is even used to estimate GDP](https://blogs.worldbank.org/en/developmenttalk/measuring-quarterly-economic-growth-outer-space#:~:text=This%20elasticity%20can%20be%20used,of%206.5%20percent%20of%20GDP.). Therefore, within a given country, let's say China, we will place its 970 allocated LEDs in its brightest areas, and we will hope that these also closely align with the areas where most of China's energy is being used.
+🟢 Then, Dr. Eric Galbraith of McGill University suggested that we utilize [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) instead, as this geospatial data is also readily available and [is even used to estimate GDP](https://blogs.worldbank.org/en/developmenttalk/measuring-quarterly-economic-growth-outer-space#:~:text=This%20elasticity%20can%20be%20used,of%206.5%20percent%20of%20GDP.). Therefore, within a given country, let's say China, we will place its 970 allocated LEDs in its brightest areas, and we will hope that these also closely align with the areas where most of China's energy is being used.
 
 The following image shows the placement of the LEDs in QGIS:
 
 <p align="center">
   <img src="images/Global3500LEDs_nightlight.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS, <span style="color: green;">Now Based on Nightlight Raster</span>
+  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS, 🟢 Now Based on Nightlight Raster
 </p>
 
-Zooming into North America, we can inspect the tessellation of the LED markers. This density raster resolution (*30 arc-minute, approx. 55km*) was chosen specifically so that it could accommodate the size of an 0805 SMD LED footprint, which is about 3.5 mm long – snugly fitting inside of the ~3.6 mm side length of one of these tiles when scaled down. <span style="color: green;">*Note that this image below still depicts the LED placements from the population-density-based algorithm, but the illustration of the tile size is still just as valuable.*</span>
+Zooming into North America, we can inspect the tessellation of the LED markers. This density raster resolution (*30 arc-minute, approx. 55km*) was chosen specifically so that it could accommodate the size of an 0805 SMD LED footprint, which is about 3.5 mm long – snugly fitting inside of the ~3.6 mm side length of one of these tiles when scaled down. 🟢 *Note that this image below still depicts the LED placements from the population-density-based algorithm, but the illustration of the tile size is still just as valuable.*
 
 <p align="center">
   <img src="images/NorthAmericaLEDs.png" alt="see fig title" width="900"/>
@@ -117,7 +116,7 @@ This leads us to the final visual result of the project: a 4000 mm wide by 2000 
 <p align="center">
   <img src="outputs/full_map_4m_by_2m_nightlight.svg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 10:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers, <span style="color: green;">Now Based on Nightlight Raster</span>
+  <strong>Figure 10:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers, 🟢 Now Based on Nightlight Raster
 </p>
 
 You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice. Note that the green "stretch marks" between gores are simply visual artifacts from the simplified multipolygonal countries being plotted across gore boundaries, and would not be included in the manufacturing. Editing out these stretch marks is a future task, and until then, they serve as a neat visual indicator of the deformation necessary to transform a sphere onto flat segments.
@@ -127,7 +126,7 @@ Figure 11 below enables you to see the rectangular LED markers more clearly. Thi
 <p align="center">
   <img src="images/East_Asia_Zoomed_nightlight.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 11:</strong> Zoomed Capture from the SVG of East Asia, <span style="color: green;">Now Based on Nightlight Raster</span>
+  <strong>Figure 11:</strong> Zoomed Capture from the SVG of East Asia, 🟢 Now Based on Nightlight Raster
 </p>
 
 
@@ -168,9 +167,9 @@ Interestingly, as seen in Figure 12, there are six gore halves which contain zer
 ### Data Sources:
 - [Energy Production and Consumption](https://ourworldindata.org/energy-production-consumption) from *Our World in Data* by Hannah Ritchie, Pablo Rosado and Max Roser in 2024.
     - Navigate down on the webpage to "Primary energy consumption, 2023", then download "Full data (CSV)". I cleaned and sorted the data and placed it in the `data/` folder. It is titled `Country Energy Data.xlsx`.
-- [Annual VNL V2](https://eogdata.mines.edu/products/vnl/) <span style="color: green;">from *Earth Observation Group* in 2023.
-    - <span style="color: green;">Login required to download raster data. Select *Go to Download V2.2*, *2023/*, and *VNL_npp_2023_global_vcmslcfg_v2_c202402081600.average_masked.dat.tif*. It is 11 GB uncompressed, so it is not included in the `data/` folder.
-    - <span style="color: green;">It is at a 15 arc-second resolution (~500 m at the equator), so the `rasterDownSampler.py` script was made to reduce it down to the desired 30 arc-minute resolution. This was selected so that each tile in the raster would be able to accomodate an 0805 SMD LED, but depending on your needs/desires, you can select a different resolution. 
+- 🟢 [Annual VNL V2](https://eogdata.mines.edu/products/vnl/) from *Earth Observation Group* in 2023.
+    - Login required to download raster data. Select *Go to Download V2.2*, *2023/*, and *VNL_npp_2023_global_vcmslcfg_v2_c202402081600.average_masked.dat.tif*. It is 11 GB uncompressed, so it is not included in the `data/` folder.
+    - It is at a 15 arc-second resolution (~500 m at the equator), so the `rasterDownSampler.py` script was made to reduce it down to the desired 30 arc-minute resolution. This was selected so that each tile in the raster would be able to accomodate an 0805 SMD LED, but depending on your needs/desires, you can select a different resolution. 
 - [Gridded Population of the World (GPW), v4](https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-rev11/data-download) from *Socioeconomic Data and Applications Center (SEDAC)* in 2020.
     - Login required to download raster data. Select *Single Year*, *GeoTiff*, and *30 Minute (approx. 55km)*. It is titled `gpw_v4_population_density_rev11_2020_30_min.tif` in the `data/` folder.
     - <span style="color: red;">This raster is no longer used in favour of the Nightlight raster.
@@ -216,7 +215,7 @@ Ensure you have the following files correctly placed in the `data/` directory:
 - Country shapefile: `ne_10m_admin_0_countries.shp` (including `.shx`, `.dbf`, etc.)
 - Energy data Excel file: `Country Energy Data.xlsx`
 Optional: If you have a previously edited GeoJSON file, place it in the `data/` directory and make sure only one `.geojson` file is present.
-- <span style="color: green;">Nightlight raster: `led_positions_for_manual_edit_nightlight_post-edit.geojson`
+- 🟢 Nightlight raster: `led_positions_for_manual_edit_nightlight_post-edit.geojson`
   - I made this edited file by downsampling the `VNL_npp_2023_global_vcmslcfg_v2_c202402081600.average_masked.dat.tif` file from Earth Observation Group *(see source above)*, downsampling it using my `rasterDownSampler.py` script, running it through the `main.py` script with `manual_manipulation = True`, then editing it in QGIS to add remaining LED markers that the algorithm could not place automatically. Then, I placed the edited GeoJSON in the `data/` directory and re-ran the `main.py` script with `use_edited_geojson = True`.
 
 ### 4. Adjust Parameters
