@@ -1,3 +1,5 @@
+*This master branch utilizes population density; to see the results using the nightlight raster instead, please navigate to the v2_nightlight branch.*
+
 # Project Overview
 
 This project is an **open-source platform for defining and exploring global energy distribution solutions**. It is designed to serve as a **template for building solution-based scenarios**, particularly focused on future energy systems like a **global solar grid** or other regional energy models. The goal is to help define the problem of energy distribution at a global scale, inviting others to **contribute** and use this **platform to explore potential solutions**.
