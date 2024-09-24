@@ -1,5 +1,5 @@
 *This v2 branch was created to test using the [Nighttime Lights](https://eogdata.mines.edu/products/dmsp/) raster rather than a population density raster. The project is otherwise the same as the Master branch.*  
-🟢*Edits have been marked with this green dot* .
+🟢  Edits have been marked with this green dot.
 
 # Project Overview
 
@@ -7,7 +7,7 @@ This project is an **open-source platform for defining and exploring global ener
 
 The project uses a **1.27-metre-diameter spherical globe** made up of **12 gores** constructed from flexible printed circuit boards (PCBs) with surface-mounted LEDs. These 12 gores are divided in half at the equator, resulting in **24 total strips** of flexible PCB (each 1m x 0.333m in size). 
 
-This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and a global 🟢 nighttime lights raster *(GeoJSON sourced from Earth Observation Group)*. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
+This program takes in geographical data *(shape file from Natural Earth)*, total energy usage per country *(sourced from Our World in Data)*, and 🟢 a global nighttime lights raster *(GeoJSON sourced from Earth Observation Group)*. It then outputs a scalable vector graphic of the 12 gores with countries and LED markers plotted, along with pick-and-place spreadsheets for PCB manufacturing.
 
 ### A Striking Visual Representation
 
@@ -172,7 +172,7 @@ Interestingly, as seen in Figure 12, there are six gore halves which contain zer
     - It is at a 15 arc-second resolution (~500 m at the equator), so the `rasterDownSampler.py` script was made to reduce it down to the desired 30 arc-minute resolution. This was selected so that each tile in the raster would be able to accomodate an 0805 SMD LED, but depending on your needs/desires, you can select a different resolution. 
 - [Gridded Population of the World (GPW), v4](https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-rev11/data-download) from *Socioeconomic Data and Applications Center (SEDAC)* in 2020.
     - Login required to download raster data. Select *Single Year*, *GeoTiff*, and *30 Minute (approx. 55km)*. It is titled `gpw_v4_population_density_rev11_2020_30_min.tif` in the `data/` folder.
-    - <span style="color: red;">This raster is no longer used in favour of the Nightlight raster.
+    - 🔴 This raster is no longer used in favour of the Nightlight raster.
 - [Admin 0 – Countries](https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/) from *Natural Earth* in 2022.
     - The shape file (`ne_10m_admin_0_countries.shp`) is the primary focus, but the `.cpg`, `.dbf`, and `.shx` supporting files are also necessary and are located in the `data/` folder.
 
