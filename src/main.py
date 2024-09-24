@@ -1,15 +1,4 @@
-# Sept 2024: Trying to change pop density raster to nightlight raster
-#
-# updated raster path
-# updated geojson output path
-# updated output svg filename
-
-# unless create_coords_for_manufact is true, we shouldn't be recreating led_coords_global.csv -- add this logic
-# need to change all the details with population, country (if relevant)
-# need to add option to use downsampler script somehow -- could just be a standalone script that people run so that I don't need to deal with the 11 GB raster at all.
-# The cutting around the shape file has problematic implications for small places/coastlines, because it excludes tiles that could have LEDs. like hawaii maybe
-# Could make shape file simplification for the green country mapping less coarse; make it higher res for display purposes. The file size is large, but if we split it into 24 pieces anyway, this should help to alleviate this issue.
-
+# Sept 2024: Changed pop density raster to nightlight raster
 
 import os
 import geopandas as gpd
