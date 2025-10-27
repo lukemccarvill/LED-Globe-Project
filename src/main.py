@@ -12,6 +12,8 @@
 import os
 import geopandas as gpd
 import pandas as pd
+import matplotlib
+matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from led_allocator import allocate_leds
 from country_mapper import draw_countries_on_gores
