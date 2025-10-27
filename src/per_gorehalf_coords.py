@@ -22,7 +22,7 @@ def translate_coords(x, y, gore_section):
 
     return x_translated, y_translated
 
-def create_gorehalf_coords(csv_input_path="led_coordinates_global.csv"):
+def create_gorehalf_coords(csv_input_path='../transients/led_coordinates_global.csv'):
     # Get the root directory of the project (assumes script is run from 'src')
     project_root = os.path.dirname(os.path.dirname(__file__))
     output_dir = os.path.join(project_root, 'outputs')
