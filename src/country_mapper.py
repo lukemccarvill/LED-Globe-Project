@@ -3,6 +3,7 @@ import numpy as np
 import geopandas as gpd
 import random
 from gore_drawer import plot_multiple_gores
+from tqdm import tqdm
 
 random.seed(42)  # to get consistent green countries
 
@@ -39,9 +40,9 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     world['geometry'] = world['geometry'].apply(lambda geom: geom.simplify(tolerance=simplify_tolerance))
 
     # Iterate over all countries and plot them
-    for _, country in world.iterrows():
+    for _, country in tqdm(world.iterrows(), total=len(world), desc="Drawing countries", unit="country"):
         country_name = country['ADMIN']
-        print(f"Starting {country_name}...")
+        #print(f"Starting {country_name}...")
         
         # Generate a random shade of green
         random_green = (random.uniform(0, 0.5), random.uniform(0.5, 1), random.uniform(0, 0.5))
@@ -59,7 +60,7 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
             if gore_x and gore_y:
                 ax.fill(gore_x, gore_y, color=random_green, linewidth=0)
         
-        print(f"Finished {country_name}.")
+        #print(f"Finished {country_name}.")
 
     print("Countries have been mapped onto the gores.")
 
