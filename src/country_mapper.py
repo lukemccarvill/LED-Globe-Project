@@ -35,6 +35,98 @@ def create_gore_polygons_gdf(gore_boundaries, num_gores=12):
     gdf = gpd.GeoDataFrame({'gore_id': gore_ids, 'geometry': geometries}, crs='EPSG:4326')
     return gdf
 
+# debug
+def plot_debug_geopackages(world, gores_gdf, output_path='../outputs/debug_geopackages.png'):
+    """Plot the countries and gore boxes for debugging"""
+    fig, axes = plt.subplots(1, 3, figsize=(24, 8))
+
+    # Plot 1: Countries only
+    world.plot(ax=axes[0], color='lightblue', edgecolor='black', linewidth=0.5)
+    axes[0].set_title(f'Countries ({len(world)} features)', fontsize=14)
+    axes[0].set_xlabel('Longitude')
+    axes[0].set_ylabel('Latitude')
+    axes[0].grid(True, alpha=0.3)
+
+    # Plot 2: Gore boxes only
+    gores_gdf.plot(ax=axes[1], color='lightgreen', edgecolor='red', linewidth=2, alpha=0.3)
+    axes[1].set_title(f'Gore Boxes ({len(gores_gdf)} gores)', fontsize=14)
+    axes[1].set_xlabel('Longitude')
+    axes[1].set_ylabel('Latitude')
+    axes[1].grid(True, alpha=0.3)
+
+    # Add gore labels
+    for idx, gore in gores_gdf.iterrows():
+        centroid = gore.geometry.centroid
+        axes[1].text(centroid.x, centroid.y, str(idx),
+                     ha='center', va='center', fontsize=10, fontweight='bold')
+
+    # Plot 3: Countries + Gore boxes overlay
+    world.plot(ax=axes[2], color='lightblue', edgecolor='black', linewidth=0.5)
+    gores_gdf.plot(ax=axes[2], facecolor='none', edgecolor='red', linewidth=2)
+    axes[2].set_title('Countries with Gore Box Overlay', fontsize=14)
+    axes[2].set_xlabel('Longitude')
+    axes[2].set_ylabel('Latitude')
+    axes[2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"Debug plot saved to {output_path}")
+    plt.show()
+
+
+# debug
+def plot_clipped_example(world, gores_gdf, country_name='United States of America',
+                         output_path='../outputs/debug_clipped_example.png'):
+    """Plot an example of how a specific country gets clipped by gores"""
+    # Find the country
+    country = world[world['ADMIN'] == country_name].iloc[0]
+    country_geom = country.geometry
+
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    axes = axes.flatten()
+
+    # Plot original country
+    gpd.GeoSeries([country_geom]).plot(ax=axes[0], color='blue', alpha=0.5)
+    axes[0].set_title(f'Original: {country_name}', fontsize=12)
+    axes[0].grid(True, alpha=0.3)
+
+    # Get relevant gores
+    lon_min, lat_min, lon_max, lat_max = country_geom.bounds
+    gore_width = 360 / len(gores_gdf)
+    start_gore = max(0, int((lon_min + 180) / gore_width))
+    end_gore = min(len(gores_gdf) - 1, int((lon_max + 180) / gore_width))
+
+    # Plot each clipped piece
+    plot_idx = 1
+    for gore_idx in range(start_gore, min(end_gore + 1, start_gore + 5)):  # Limit to 5 gores
+        gore_geom = gores_gdf.loc[gore_idx, 'geometry']
+        clipped = country_geom.intersection(gore_geom)
+
+        if not clipped.is_empty:
+            # Plot gore box
+            gpd.GeoSeries([gore_geom]).plot(ax=axes[plot_idx], facecolor='none',
+                                            edgecolor='red', linewidth=2)
+            # Plot original country outline
+            gpd.GeoSeries([country_geom]).plot(ax=axes[plot_idx], facecolor='none',
+                                               edgecolor='blue', linewidth=1, alpha=0.5)
+            # Plot clipped result
+            gpd.GeoSeries([clipped]).plot(ax=axes[plot_idx], color='green', alpha=0.7)
+            axes[plot_idx].set_title(f'Gore {gore_idx}: Clipped', fontsize=12)
+            axes[plot_idx].grid(True, alpha=0.3)
+            plot_idx += 1
+
+            if plot_idx >= len(axes):
+                break
+
+    # Hide unused subplots
+    for idx in range(plot_idx, len(axes)):
+        axes[idx].axis('off')
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"Clipped example plot saved to {output_path}")
+    plt.show()
+
 
 def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     """Map a polygon from lon/lat to gore coordinate space"""
@@ -42,11 +134,20 @@ def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     gore_x, gore_y = [], []
 
     x_left, x_right, y_gore = gore_boundaries[gore_index]
-    gore_width = 30  # degrees
+    gore_width = 360 / len(gore_boundaries)  # Should be 30 for 12 gores
+
+    # Calculate the longitude range for THIS specific gore
+    gore_lon_min = -180 + (gore_index * gore_width)
+    gore_lon_max = gore_lon_min + gore_width
 
     for lon_point, lat_point in zip(x, y):
-        relative_lon = ((lon_point + 180) % gore_width) / gore_width
+        # Calculate position within THIS gore (0 to 1)
+        relative_lon = (lon_point - gore_lon_min) / gore_width
         relative_lat = (lat_point + 90) / 180
+
+        # Clamp values to [0, 1] to handle floating point errors
+        relative_lon = max(0, min(1, relative_lon))
+        relative_lat = max(0, min(1, relative_lat))
 
         num_points = len(x_left)
         y_index = int(relative_lat * (num_points - 1))
@@ -61,7 +162,8 @@ def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     return gore_x, gore_y
 
 
-def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_countries=True, use_simplified=True):
+def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_countries=True,
+                            use_simplified=True, debug_plots=False):
     if not draw_countries:
         return  # If country drawing is disabled, exit early
 
@@ -88,15 +190,18 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
         print(f"Reprojecting from {world.crs} to EPSG:4326...")
         world = world.to_crs('EPSG:4326')
 
-    # Note: No need to simplify again if using the simplified file
-
     # Create gore polygons as GeoDataFrame
     print("Creating gore polygons as GeoDataFrame...")
     gores_gdf = create_gore_polygons_gdf(gore_boundaries, num_gores=len(gore_boundaries))
 
-    # Optional: Save to geopackage for debugging
-    # gores_gdf.to_file("gores.gpkg", driver="GPKG")
-    # world.to_file("countries.gpkg", driver="GPKG")
+    # Create debug plots if requested
+    if debug_plots:
+        print("Creating debug plots...")
+        plot_debug_geopackages(world, gores_gdf)
+        plot_clipped_example(world, gores_gdf, country_name='United States of America')
+        plot_clipped_example(world, gores_gdf, country_name='Russia')
+        print("Debug plots created. Check the outputs folder.")
+        return  # Exit after creating debug plots
 
     # Iterate over all countries and plot them
     for country in tqdm(world.itertuples(), total=len(world), desc="Drawing countries", unit="country"):
