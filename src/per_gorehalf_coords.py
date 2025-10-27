@@ -9,7 +9,7 @@ def translate_coords(x, y, gore_section):
 
     # Get the gore number and hemisphere from the section
     gore_num = int(gore_section[:-1])  # Get gore number (1-12)
-    hemisphere = gore_section[-1]      # Get hemisphere (N/S)
+    hemisphere = gore_section[-1]  # Get hemisphere (N/S)
 
     # Translate x-coordinates: Shift each gore section to its own 0 to 333.33 range
     x_translated = x - ((gore_num - 1) * 333.33 - 2000)
@@ -22,7 +22,24 @@ def translate_coords(x, y, gore_section):
 
     return x_translated, y_translated
 
-def create_gorehalf_coords(csv_input_path="transients/led_coordinates_global.csv"):
+
+def create_gorehalf_coords(transient_dir=None):
+    """
+    Create gore half coordinates for manufacturing.
+
+    Parameters:
+    -----------
+    transient_dir : str, optional
+        Path to the transients directory. If not provided, uses relative path.
+    """
+
+    # Construct the CSV input path
+    if transient_dir is None:
+        # Fallback to relative path
+        csv_input_path = '../transients/led_coordinates_global.csv'
+    else:
+        csv_input_path = os.path.join(transient_dir, 'led_coordinates_global.csv')
+
     # Get the root directory of the project (assumes script is run from 'src')
     project_root = os.path.dirname(os.path.dirname(__file__))
     output_dir = os.path.join(project_root, 'outputs')
@@ -35,10 +52,12 @@ def create_gorehalf_coords(csv_input_path="transients/led_coordinates_global.csv
     xlsx_output_path = os.path.join(output_dir, "gorehalf_coordinates_with_sheets.xlsx")
 
     # Read the CSV file generated from the previous script
+    print(f"Reading CSV from: {csv_input_path}")
     df = pd.read_csv(csv_input_path)
 
     # Translate the coordinates and store them in new columns
-    df[['Mid X (mm)', 'Mid Y (mm)']] = df.apply(lambda row: translate_coords(row['X (mm)'], row['Y (mm)'], row['Gore Section']), axis=1, result_type='expand')
+    df[['Mid X (mm)', 'Mid Y (mm)']] = df.apply(
+        lambda row: translate_coords(row['X (mm)'], row['Y (mm)'], row['Gore Section']), axis=1, result_type='expand')
 
     # Reorder the data to follow the gore half order: 1N, 1S, 2N, 2S, ..., 12N, 12S
     df['Sort_Key'] = df['Gore Section'].map(lambda x: (int(x[:-1]), x[-1]))
@@ -67,4 +86,3 @@ def create_gorehalf_coords(csv_input_path="transients/led_coordinates_global.csv
                 section_df[['Mid X (mm)', 'Mid Y (mm)']].to_excel(writer, sheet_name=gore_section, index=False)
 
     print(f"Translated coordinates and sheets saved to {xlsx_output_path}.")
-
