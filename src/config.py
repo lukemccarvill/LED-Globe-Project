@@ -31,7 +31,7 @@ countries_by_continent = {
         'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan',
         'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Macao',
         'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea',
-        'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Russia',
+        'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar',
         'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria',
         'Taiwan', 'Tajikistan', 'Thailand', 'Turkey', 'Turkmenistan',
         'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen'
@@ -45,7 +45,7 @@ countries_by_continent = {
         'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal',
         'Romania', 'Serbia', 'Serbia and Montenegro', 'Slovakia', 'Slovenia',
         'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom',
-        'USSR', 'West Germany', 'Yugoslavia'
+        'USSR', 'West Germany', 'Yugoslavia', 'Russia'
     ],
     'North America': [
         'Antigua and Barbuda', 'Aruba', 'Bahamas', 'Barbados', 'Belize',
