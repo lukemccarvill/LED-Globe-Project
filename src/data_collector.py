@@ -73,6 +73,6 @@ gdf = gpd.GeoDataFrame(features, crs='EPSG:4326')
 
 # Save as GeoPackage
 gdf.to_file('../data/API/countries.gpkg', driver='GPKG')
-print("Countries data saved to: ../data/API/countries.gpkg")
+print("\nCountries data saved to: ../data/API/countries.gpkg")
 
 #endregion
