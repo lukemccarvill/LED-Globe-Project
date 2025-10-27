@@ -10,8 +10,9 @@ from shapely.geometry import shape
    Files to import:                       Source:                       Saves to file:
    
 1. global energy consumption              ourworldindata.org            global_energy_consumption
-2. world administrative boundaries        opendatasoft.com (WFP, UN)    countries                  
-3. 
+2. per capita energy consumption          ourworldindata.org            per_capita_energy_consumption
+3. world administrative boundaries        opendatasoft.com (WFP, UN)    countries                  
+4. 
 
 """
 
@@ -25,7 +26,7 @@ print("Directory '../data/API' created or already exists")
 
 # Fetch the data
 df = pd.read_csv(
-    "https://ourworldindata.org/grapher/global-energy-substitution.csv?v=1&csvType=full&useColumnShortNames=true",
+    "https://ourworldindata.org/grapher/primary-energy-cons.csv?v=1&csvType=full&useColumnShortNames=true",
     storage_options={'User-Agent': 'Our World In Data data fetch/1.0'}
 )
 
@@ -42,9 +43,37 @@ metadata = requests.get(
 ).json()
 
 # Save the metadata to JSON
-with open('../data/API/global-energy-consumption-metadata.json', 'w') as f:
+with open('../data/API/global_energy_consumption_metadata.json', 'w') as f:
     json.dump(metadata, f, indent=2)
-print("Metadata saved to: ../data/API/global-energy-consumption-metadata.json")
+print("Metadata saved to: ../data/API/global_energy_consumption_metadata.json\n")
+
+#endregion
+
+## --------------------------------------------- PER CAPITA ENERGY CONSUMPTION ---------------------------------------------
+# region
+
+# Fetch the data
+df = pd.read_csv(
+    "https://ourworldindata.org/grapher/primary-energy-cons.csv?v=1&csvType=full&useColumnShortNames=true",
+    storage_options={'User-Agent': 'Our World In Data data fetch/1.0'}
+)
+
+print("Data columns:", df.columns.tolist())
+print(f"Data shape: {df.shape}")
+
+# Save the DataFrame to CSV
+df.to_csv('../data/API/per_capita_energy_consumption.csv', index=False)
+print("Data saved to: ../data/API/per_capita_energy_consumption.csv")
+
+# Fetch the metadata
+metadata = requests.get(
+    "https://ourworldindata.org/grapher/primary-energy-cons.metadata.json?v=1&csvType=full&useColumnShortNames=true"
+).json()
+
+# Save the metadata to JSON
+with open('../data/API/per_capita_energy_consumption_metadata.json', 'w') as f:
+    json.dump(metadata, f, indent=2)
+print("Metadata saved to: ../data/API/per_capita_energy_consumption_metadata.json")
 
 #endregion
 
