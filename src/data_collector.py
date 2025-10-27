@@ -54,7 +54,7 @@ print("Metadata saved to: ../data/API/global_energy_consumption_metadata.json\n"
 
 # Fetch the data
 df = pd.read_csv(
-    "https://ourworldindata.org/grapher/primary-energy-cons.csv?v=1&csvType=full&useColumnShortNames=true",
+    "https://ourworldindata.org/grapher/per-capita-energy-use.csv?v=1&csvType=full&useColumnShortNames=true",
     storage_options={'User-Agent': 'Our World In Data data fetch/1.0'}
 )
 
@@ -67,7 +67,7 @@ print("Data saved to: ../data/API/per_capita_energy_consumption.csv")
 
 # Fetch the metadata
 metadata = requests.get(
-    "https://ourworldindata.org/grapher/primary-energy-cons.metadata.json?v=1&csvType=full&useColumnShortNames=true"
+    "https://ourworldindata.org/grapher/per-capita-energy-use.metadata.json?v=1&csvType=full&useColumnShortNames=true"
 ).json()
 
 # Save the metadata to JSON
