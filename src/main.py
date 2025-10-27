@@ -108,10 +108,22 @@ if draw_leds:
 if create_coords_for_manufact:
     create_gorehalf_coords(transient_dir)
 
-# Save the final output with tight bounding box and exact dimensions
-fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
+# Save both PNG and simplified SVG
+output_base = output_svg_filename.replace('.svg', '')
 
-print(f"File saved as {output_svg_filename}")
+# High-res PNG for viewing
+fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
+print(f"High-res PNG saved as {output_base}_highres.png")
+
+# Lower-res PNG for quick preview
+fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
+print(f"Preview PNG saved as {output_base}_preview.png")
+
+# Rasterized SVG (much smaller)
+for collection in ax.collections:
+    collection.set_rasterized(True)
+fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
+print(f"Rasterized SVG saved as {output_svg_filename}")
 
 plt.show()
 plt.close(fig)
