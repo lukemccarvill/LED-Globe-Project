@@ -55,6 +55,7 @@ draw_leds = True  # set to False if you don't want LED markings
 use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
 manual_manipulation = False  # set to True to enable manual manipulation mode
 create_coords_for_manufact = True  # Toggle this to create gore half coordinates for pick-and-place
+use_simplified_countries = True  # Set to True to use pre-simplified geopackage (faster loading)
 
 # Load the country shapefile and LED data
 world = gpd.read_file(shapefile_path)
@@ -99,7 +100,7 @@ fig, ax, gore_boundaries = plot_multiple_gores(num_gores=num_gores, fig=fig, ax=
 
 # Draw the countries if specified
 if draw_countries:
-    draw_countries_on_gores(shapefile_path, fig, ax, gore_boundaries, draw_countries=True, simplify_tolerance=0.1)
+    draw_countries_on_gores(shapefile_path, fig, ax, gore_boundaries, draw_countries=True, use_simplified=use_simplified_countries)
 
 # Plot the LEDs if specified
 if draw_leds:
@@ -107,12 +108,24 @@ if draw_leds:
 
 # create the coordinates, centred at bottom-left of each gore half, if specified
 if create_coords_for_manufact:
-    create_gorehalf_coords()
+    create_gorehalf_coords(transient_dir)
 
-# Save the final output with tight bounding box and exact dimensions
+# Save both PNG and simplified SVG
+output_base = output_svg_filename.replace('.svg', '')
+
+# High-res PNG for viewing
+fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
+print(f"High-res PNG saved as {output_base}_highres.png")
+
+# Lower-res PNG for quick preview
+fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
+print(f"Preview PNG saved as {output_base}_preview.png")
+
+# Rasterized SVG (much smaller)
+for collection in ax.collections:
+    collection.set_rasterized(True)
 fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
-
-print(f"File saved as {output_svg_filename}")
+print(f"Rasterized SVG saved as {output_svg_filename}")
 
 plt.show()
 plt.close(fig)
