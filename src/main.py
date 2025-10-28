@@ -15,117 +15,140 @@ import pandas as pd
 import matplotlib
 matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
+
+from dataclasses import dataclass
+
 from led_allocator import allocate_leds
 from country_mapper import draw_countries_on_gores
 from gore_drawer import plot_multiple_gores
 from led_plotter import plot_leds_on_gores
 from per_gorehalf_coords import create_gorehalf_coords
 
-# Get the root directory of the project (assumes script is run from within the project structure)
-project_root = os.path.dirname(os.path.dirname(__file__))
+# ~~~ to interface with gui
+@dataclass
+class Options:
+    draw_gores: bool = True  # set to False if you don't want gore outlines
+    draw_equator: bool = True # set to True if you want a black line along the equator to divide gore halves
+    draw_countries: bool = True  # set to False if you don't want country mappings
+    draw_leds: bool = True  # set to False if you don't want LED markings
+    use_edited_geojson: bool = True  # Set to True to use a previously edited GeoJSON file from the data folder
+    manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
+    create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
+    use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
 
-# Define relative paths based on the project structure
-data_dir = os.path.join(project_root, 'data')
-transient_dir = os.path.join(project_root, 'transients') # these are temp/middle-of-the-process files
-output_dir = os.path.join(project_root, 'outputs')
 
-# Ensure the output directory exists
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+# ~~~
 
-# paths for data, transients, and output files
-shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
-country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
-# Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
+def run(opts: Options):
+    """Like original, but using opts.<field? rather than bare variables"""
+    # Get the root directory of the project (assumes script is run from within the project structure)
+    project_root = os.path.dirname(os.path.dirname(__file__))
 
-geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
-output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
+    # Define relative paths based on the project structure
+    data_dir = os.path.join(project_root, 'data')
+    transient_dir = os.path.join(project_root, 'transients') # these are temp/middle-of-the-process files
+    output_dir = os.path.join(project_root, 'outputs')
+    # Ensure the output directory exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-# Parameters for the final output
-final_width = 4 # meters
-final_height = 2 # meters
-led_width = 0.002 # meters (2mm)
-led_height = 0.0035 # meters (3.5mm)
-num_gores = 12  # number of gores to draw
-draw_gores = True  # set to False if you don't want gore outlines
-draw_equator = True # set to True if you want a black line along the equator to divide gore halves
-draw_countries = True  # set to False if you don't want country mappings
-draw_leds = True  # set to False if you don't want LED markings
-use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
-manual_manipulation = False  # set to True to enable manual manipulation mode
-create_coords_for_manufact = True  # Toggle this to create gore half coordinates for pick-and-place
-use_simplified_countries = True  # Set to True to use pre-simplified geopackage (faster loading)
+    # paths for data, transients, and output files
+    shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
+    raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+    country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
+    # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
-# Load the country shapefile and LED data
-world = gpd.read_file(shapefile_path)
-led_data = pd.read_excel(country_energy_path)
+    geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
+    output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
-# Find the column that contains the string "Chosen"
-chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0]
+    # Parameters for the final output -- put these in GUI eventually?
+    final_width = 4 # meters
+    final_height = 2 # meters
+    led_width = 0.002 # meters (2mm)
+    led_height = 0.0035 # meters (3.5mm)
+    num_gores = 12  # number of gores to draw
+    # draw_gores = True  # set to False if you don't want gore outlines
+    # draw_equator = True # set to True if you want a black line along the equator to divide gore halves
+    # draw_countries = True  # set to False if you don't want country mappings
+    # draw_leds = False  # set to False if you don't want LED markings
+    # use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
+    # manual_manipulation = False  # set to True to enable manual manipulation mode
+    # create_coords_for_manufact = False  # Toggle this to create gore half coordinates for pick-and-place
+    # use_simplified_countries = False  # Set to True to use pre-simplified geopackage (faster loading)
 
-# Check if the edited GeoJSON file exists and use it if the flag is set
-if use_edited_geojson:
-    geojson_files = [f for f in os.listdir(data_dir) if f.endswith('.geojson')]
-    if len(geojson_files) == 1:
-        print(f"Using the GeoJSON file: {geojson_files[0]}")
-        all_leds_gdf = gpd.read_file(os.path.join(data_dir, geojson_files[0]))
-    elif len(geojson_files) == 0:
-        print("No GeoJSON files found in the data folder.")
+    # Load the country shapefile and LED data
+    world = gpd.read_file(shapefile_path)
+    led_data = pd.read_excel(country_energy_path)
+
+    # Find the column that contains the string "Chosen"
+    chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0]
+
+    # Check if the edited GeoJSON file exists and use it if the flag is set
+    if opts.use_edited_geojson:
+        geojson_files = [f for f in os.listdir(data_dir) if f.endswith('.geojson')]
+        if len(geojson_files) == 1:
+            print(f"Using the GeoJSON file: {geojson_files[0]}")
+            all_leds_gdf = gpd.read_file(os.path.join(data_dir, geojson_files[0]))
+        elif len(geojson_files) == 0:
+            print("No GeoJSON files found in the data folder.")
+        else:
+            print(f"Multiple GeoJSON files found: {geojson_files}. Please ensure only one file is present.")
+
+    elif opts.manual_manipulation and opts.draw_leds and os.path.exists(geojson_output_path):
+        print("Manual manipulation mode enabled. Loading the manual edit GeoJSON file from the transients folder.")
+        all_leds_gdf = gpd.read_file(geojson_output_path)
     else:
-        print(f"Multiple GeoJSON files found: {geojson_files}. Please ensure only one file is present.")
+        # Filter the LED data to include only the top entities and drop NaN values
+        led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
 
-elif manual_manipulation and draw_leds and os.path.exists(geojson_output_path):
-    print("Manual manipulation mode enabled. Loading the manual edit GeoJSON file from the transients folder.")
-    all_leds_gdf = gpd.read_file(geojson_output_path)
-else:
-    # Filter the LED data to include only the top entities and drop NaN values
-    led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
+        # Allocate LEDs based on population
+        all_leds_gdf = allocate_leds(led_data, world, raster_path, allocate_leds=opts.draw_leds, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
-    # Allocate LEDs based on population
-    all_leds_gdf = allocate_leds(led_data, world, raster_path, allocate_leds=draw_leds, manual_manipulation=manual_manipulation, geojson_output_path=geojson_output_path)
-
-    # If in manual manipulation mode, the script will exit after creating the GeoJSON
-    if manual_manipulation and draw_leds:
-        print("Manual manipulation mode is enabled. Please edit the GeoJSON file and rerun the script.")
-        print("Please ensure you close QGIS before rerunning the script or else you will get an error that the GeoJSON file is being used by another software.")
-        exit()  # Exit the script here to allow for manual edits
+        # If in manual manipulation mode, the script will exit after creating the GeoJSON
+        if opts.manual_manipulation and opts.draw_leds:
+            print("Manual manipulation mode is enabled. Please edit the GeoJSON file and rerun the script.")
+            print("Please ensure you close QGIS before rerunning the script or else you will get an error that the GeoJSON file is being used by another software.")
+            exit()  # Exit the script here to allow for manual edits
 
 
-# Set up the final figure dimensions (4000mm x 2000mm)
-fig, ax = plt.subplots(figsize=(final_width * 39.3701, final_height * 39.3701))  # Exact 4m x 2m canvas in inches
+    # Set up the final figure dimensions (4000mm x 2000mm)
+    fig, ax = plt.subplots(figsize=(final_width * 39.3701, final_height * 39.3701))  # Exact 4m x 2m canvas in inches
 
-# Draw the gores with the correct dimensions
-fig, ax, gore_boundaries = plot_multiple_gores(num_gores=num_gores, fig=fig, ax=ax, draw_outlines=draw_gores, draw_equator=draw_equator, width=final_width, height=final_height)
+    # Draw the gores with the correct dimensions
+    fig, ax, gore_boundaries = plot_multiple_gores(num_gores=num_gores, fig=fig, ax=ax, draw_outlines=opts.draw_gores, draw_equator=opts.draw_equator, width=final_width, height=final_height)
 
-# Draw the countries if specified
-if draw_countries:
-    draw_countries_on_gores(shapefile_path, fig, ax, gore_boundaries, draw_countries=True, use_simplified=use_simplified_countries)
+    # Draw the countries if specified
+    if opts.draw_countries:
+        draw_countries_on_gores(shapefile_path, fig, ax, gore_boundaries, draw_countries=True, use_simplified=opts.use_simplified_countries)
 
-# Plot the LEDs if specified
-if draw_leds:
-    plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=led_width, led_height=led_height, scale_factor=1, plot_leds=True)
+    # Plot the LEDs if specified
+    if opts.draw_leds:
+        plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=led_width, led_height=led_height, scale_factor=1, plot_leds=True)
 
-# create the coordinates, centred at bottom-left of each gore half, if specified
-if create_coords_for_manufact:
-    create_gorehalf_coords(transient_dir)
+    # create the coordinates, centred at bottom-left of each gore half, if specified
+    if opts.create_coords_for_manufact:
+        create_gorehalf_coords(transient_dir)
 
-# Save both PNG and simplified SVG
-output_base = output_svg_filename.replace('.svg', '')
+    # Save both PNG and simplified SVG
+    output_base = output_svg_filename.replace('.svg', '')
 
-# High-res PNG for viewing
-fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
-print(f"High-res PNG saved as {output_base}_highres.png")
+    # High-res PNG for viewing
+    # fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
+    # print(f"High-res PNG saved as {output_base}_highres.png")
 
-# Lower-res PNG for quick preview
-fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
-print(f"Preview PNG saved as {output_base}_preview.png")
+    # # Lower-res PNG for quick preview
+    # fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
+    # print(f"Preview PNG saved as {output_base}_preview.png")
 
-# Rasterized SVG (much smaller)
-for collection in ax.collections:
-    collection.set_rasterized(True)
-fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
-print(f"Rasterized SVG saved as {output_svg_filename}")
+    # Rasterized SVG (much smaller)
+    for collection in ax.collections:
+        collection.set_rasterized(True)
+    fig.savefig(output_svg_filename, format="svg", dpi=300, pad_inches=0, transparent=True)
+    print(f"Rasterized SVG saved as {output_svg_filename}")
 
-plt.show()
-plt.close(fig)
+    plt.show()
+    plt.close(fig)
+
+if __name__ == "__main__":
+    # click run on main.py to run with defaults (no gui)
+    run(Options())
