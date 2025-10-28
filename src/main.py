@@ -26,6 +26,7 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 
 # Define relative paths based on the project structure
 data_dir = os.path.join(project_root, 'data')
+raster_dir = os.path.join(data_dir, "rasters")
 transient_dir = os.path.join(project_root, 'transients') # these are temp/middle-of-the-process files
 output_dir = os.path.join(project_root, 'outputs')
 
@@ -36,9 +37,12 @@ if not os.path.exists(output_dir):
 # paths for data, transients, and output files
 shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
 raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg")
 country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
 # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
+year = 2025
+energy_timeseries = gpd.read_file(energy_raster_path)
 geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
 output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
@@ -52,9 +56,10 @@ draw_gores = True  # set to False if you don't want gore outlines
 draw_equator = True # set to True if you want a black line along the equator to divide gore halves
 draw_countries = True  # set to False if you don't want country mappings
 draw_leds = True  # set to False if you don't want LED markings
-use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
+place_ocean = False # set to True to put missing LEDs in ocean
+use_edited_geojson = False  # Set to True to use a previously edited GeoJSON file from the data folder
 manual_manipulation = False  # set to True to enable manual manipulation mode
-create_coords_for_manufact = True  # Toggle this to create gore half coordinates for pick-and-place
+create_coords_for_manufact = False  # Toggle this to create gore half coordinates for pick-and-place
 use_simplified_countries = True  # Set to True to use pre-simplified geopackage (faster loading)
 
 # Load the country shapefile and LED data
@@ -83,7 +88,7 @@ else:
     led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
 
     # Allocate LEDs based on population
-    all_leds_gdf = allocate_leds(led_data, world, raster_path, allocate_leds=draw_leds, manual_manipulation=manual_manipulation, geojson_output_path=geojson_output_path)
+    all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=draw_leds, place_ocean=place_ocean, manual_manipulation=manual_manipulation, geojson_output_path=geojson_output_path)
 
     # If in manual manipulation mode, the script will exit after creating the GeoJSON
     if manual_manipulation and draw_leds:
