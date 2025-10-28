@@ -1,0 +1,122 @@
+name: Annual Energy Consumption Download
+
+on:
+  schedule:
+    # Runs at 2:00 AM UTC on January 1st every year
+    - cron: '0 2 1 1 *'
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  download-energy-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install requests pandas numpy
+      
+      - name: Run download script with error tracking
+        id: download
+        run: |
+          python data_collector.py 2>&1 | tee download.log
+          echo "log_file=download.log" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      
+      - name: Check for errors
+        id: check_errors
+        run: |
+          if grep -i "error\|failed\|exception" download.log; then
+            echo "has_errors=true" >> $GITHUB_OUTPUT
+            echo "## ⚠️ Errors detected in download process" >> errors.txt
+            echo "" >> errors.txt
+            grep -i "error\|failed\|exception" download.log >> errors.txt
+          else
+            echo "has_errors=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      
+      - name: Upload downloaded files as artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: energy-consumption-data-${{ steps.date.outputs.date }}
+          retention-days: 365
+          path: '${{ steps.date.outputs.date }}/'
+      
+      - name: Upload error log
+        uses: actions/upload-artifact@v3
+        if: steps.check_errors.outputs.has_errors == 'true'
+        with:
+          name: error-log-${{ steps.date.outputs.date }}
+          path: |
+            download.log
+            errors.txt
+          retention-days: 365
+      
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 🔋 Annual Energy Consumption Download" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_errors.outputs.has_errors }}" == "true" ]; then
+            echo "### ⚠️ Errors Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat errors.txt >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -d "${{ steps.date.outputs.date }}" ]; then
+            echo "### Downloaded Files:" >> $GITHUB_STEP_SUMMARY
+            ls -lh ${{ steps.date.outputs.date }}/ | tail -n +2 | awk '{printf "- %s (%s)\n", $9, $5}' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Total files:** $(ls -1 ${{ steps.date.outputs.date }}/ | wc -l)" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Create Issue on Error
+        if: steps.check_errors.outputs.has_errors == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const errorLog = fs.readFileSync('errors.txt', 'utf8');
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Annual Energy Download Errors - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Download Error Report
+              
+              The automated annual energy consumption download encountered errors on ${new Date().toISOString().split('T')[0]}.
+              
+              ### Error Details:
+              \`\`\`
+              ${errorLog}
+              \`\`\`
+              
+              ### Actions Taken:
+              - [View workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              - [Download error logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              
+              Please investigate and resolve these errors.`,
+              labels: ['automated', 'error', 'data-download', 'annual']
+            });
+      
+      - name: Fail workflow if errors detected
+        if: steps.check_errors.outputs.has_errors == 'true'
+        run: |
+          echo "Errors detected during download. Check the created issue for details."
+          exit 1
