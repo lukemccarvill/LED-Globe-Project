@@ -24,7 +24,7 @@ from gore_drawer import plot_multiple_gores
 from led_plotter import plot_leds_on_gores
 from per_gorehalf_coords import create_gorehalf_coords
 
-# ~~~ to interface with gui
+# ~~~ to interface with gui. You can just 'run' this main.py file, but it will use these defaults below. I instead recommend running the gui.py script.
 @dataclass
 class Options:
     draw_gores: bool = True  # set to False if you don't want gore outlines
@@ -36,7 +36,7 @@ class Options:
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
 
-
+    raster_choice: str = "population"   # one of: "population", "nightlights"
 # ~~~
 
 def run(opts: Options):
@@ -54,7 +54,24 @@ def run(opts: Options):
 
     # paths for data, transients, and output files
     shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-    raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+    # raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+    raster_dir = os.path.join(project_root, 'nightlight_vs_population')
+
+    def _find_raster(patterns):
+        if os.path.isdir(raster_dir):
+            for f in os.listdir(raster_dir):
+                fl = f.lower()
+            if fl.endswith('.tif') and any(p in fl for p in patterns):
+                return os.path.join(raster_dir, f)
+        return None
+
+    if opts.raster_choice == "population":
+        raster_path = _find_raster(['pop', 'dens'])
+    elif opts.raster_choice == "nightlights":
+        raster_path = _find_raster(['night', 'light', 'viirs', 'ntl'])
+    else:
+        raster_path = None
+
     country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
     # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 

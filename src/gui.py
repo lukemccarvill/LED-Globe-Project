@@ -7,6 +7,7 @@ minimal gui for project toggles and parameters
 
 from dataclasses import asdict
 from main import Options
+from typing import Optional
 # from typing import Dict, List, Tuple
 
 def get_options_gui(initial: Options) -> Options:
@@ -38,16 +39,36 @@ def get_options_gui(initial: Options) -> Options:
     ]
 
     bool_vars = {}
-    for r, (label, field) in enumerate(schema):
+    row = 0
+    for label, field in schema:
         v = tk.BooleanVar(value=getattr(initial, field))
         bool_vars[field] = v
-        ttk.Checkbutton(frm, text=label, variable=v).grid(row=r, column=0, sticky="w", pady=2)
+        ttk.Checkbutton(frm, text=label, variable=v).grid(row=row, column=0, sticky="w", pady=2)
+        row += 1
+
+    # Separator (use grid)
+    ttk.Separator(frm).grid(row=row, column=0, sticky="ew", pady=(10, 6))
+    row += 1
+
+    # Raster choice (radiobuttons on grid)
+    ttk.Label(frm, text="Raster source:").grid(row=row, column=0, sticky="w", pady=(0, 4))
+    row += 1
+
+    raster_var = tk.StringVar(value=getattr(initial, "raster_choice", "population"))
+    raster_row = ttk.Frame(frm)
+    raster_row.grid(row=row, column=0, sticky="w")
+    ttk.Radiobutton(raster_row, text="Population density", variable=raster_var, value="population").grid(row=0, column=0, padx=(0, 12))
+    ttk.Radiobutton(raster_row, text="Nighttime lights",  variable=raster_var, value="nightlights").grid(row=0, column=1)
+    row += 1
+
+    # Buttons
 
     result = {"opts": None} # default is cancelled unless "OK" is pressed
     def on_ok():
         data = asdict(initial)
         for _, field in schema:
             data[field] = bool_vars[field].get()
+        data["raster_choice"] = raster_var.get()
         result["opts"] = Options(**data)
         root.destroy()
 
@@ -55,9 +76,10 @@ def get_options_gui(initial: Options) -> Options:
         result["opts"] = None
         root.destroy()
 
-    btns = ttk.Frame(frm); btns.grid(row=len(schema), column=0, pady=(12, 0), sticky="e")
-    ttk.Button(btns, text="Cancel", command=on_cancel).pack(side="right", padx=(0,8))
-    ttk.Button(btns, text="OK", command=on_ok).pack(side="right")
+    btns = ttk.Frame(frm)
+    btns.grid(row=row, column=0, sticky="e", pady=(12, 0))
+    ttk.Button(btns, text="Cancel", command=on_cancel).grid(row=0, column=0, padx=(0, 8))
+    ttk.Button(btns, text="OK", command=on_ok).grid(row=0, column=1)
     root.protocol("WM_DELETE_WINDOW", on_cancel) # X closes = cancel
     root.bind("<Escape>", lambda e: on_cancel())
 
