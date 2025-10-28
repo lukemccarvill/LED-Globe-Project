@@ -134,7 +134,7 @@ def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     gore_x, gore_y = [], []
 
     x_left, x_right, y_gore = gore_boundaries[gore_index]
-    gore_width = 360 / len(gore_boundaries)  # Should be 30 for 12 gores
+    gore_width = 360 / len(gore_boundaries)
 
     # Calculate the longitude range for THIS specific gore
     gore_lon_min = -180 + (gore_index * gore_width)
@@ -145,16 +145,21 @@ def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
         relative_lon = (lon_point - gore_lon_min) / gore_width
         relative_lat = (lat_point + 90) / 180
 
-        # Clamp values to [0, 1] to handle floating point errors
+        # Clamp values to [0, 1]
         relative_lon = max(0, min(1, relative_lon))
         relative_lat = max(0, min(1, relative_lat))
 
-        num_points = len(x_left)
-        y_index = int(relative_lat * (num_points - 1))
-        y_index = max(0, min(y_index, num_points - 1))
+        # Use numpy's interp function to interpolate based on actual y_gore values
+        # We need to map from latitude (-90 to 90) to the gore's y-coordinates
+        lat_normalized = np.linspace(-90, 90, len(y_gore))  # Assumes y_gore is evenly spaced in lat
 
-        y_pos = y_gore[y_index]
-        x_pos = x_left[y_index] + relative_lon * (x_right[y_index] - x_left[y_index])
+        # Interpolate to find the correct y position and x boundaries
+        y_pos = np.interp(lat_point, lat_normalized, y_gore)
+        x_left_at_lat = np.interp(lat_point, lat_normalized, x_left)
+        x_right_at_lat = np.interp(lat_point, lat_normalized, x_right)
+
+        # Calculate final x position
+        x_pos = x_left_at_lat + relative_lon * (x_right_at_lat - x_left_at_lat)
 
         gore_x.append(x_pos)
         gore_y.append(y_pos)
