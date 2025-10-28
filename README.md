@@ -190,7 +190,7 @@ ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solvi
 First, clone the repository to your local machine:  
 
 `git clone https://github.com/lukemccarvill/python-led-placing.git`  
-`cd python-led-placing`
+`cd LED-Globe-Project`
 
 ### 2. Install dependencies
 Make sure you have Python 3.x installed. Install the required dependencies by running:  
