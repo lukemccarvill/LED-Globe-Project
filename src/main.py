@@ -13,10 +13,10 @@ import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
-matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
+#matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
-from led_allocator import allocate_leds
+from led_allocator import determine_num_leds, allocate_leds
 from country_mapper import draw_countries_on_gores
 from gore_drawer import plot_multiple_gores
 from led_plotter import plot_leds_on_gores
@@ -55,17 +55,18 @@ def run(opts: Options):
 
     # paths for data, transients, and output files
     shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-    raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
+    #raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
     energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg")
-    country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
+    #country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
     # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
-
-    year = 2025
+    
     energy_timeseries = gpd.read_file(energy_raster_path)
     geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
     # Parameters for the final output -- put these in GUI eventually?
+    year = 2005
+    tot_leds = 3500 # number of leds to add
     final_width = 4 # meters
     final_height = 2 # meters
     led_width = 0.002 # meters (2mm)
@@ -73,13 +74,15 @@ def run(opts: Options):
     num_gores = 12  # number of gores to draw
     
 
-    # Load the country shapefile and LED data
-    world = gpd.read_file(shapefile_path)
-    led_data = pd.read_excel(country_energy_path)
+    # Load the country shapefile and LED data - old method
+    #world = gpd.read_file(shapefile_path)
+    #led_data = pd.read_excel(country_energy_path)
+    # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
+    led_data = pd.read_csv("data/API/global_energy_consumption.csv") # new way of allocating leds
 
-    # Find the column that contains the string "Chosen"
-    chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0]
-
+    
+    #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
+    # Do we want to keep the old way of manually editing data now that we can dynamically update from API + dynamically allocate LEDs, even when out of cells to place them
     # Check if the edited GeoJSON file exists and use it if the flag is set
     if opts.use_edited_geojson:
         geojson_files = [f for f in os.listdir(data_dir) if f.endswith('.geojson')]
@@ -96,10 +99,11 @@ def run(opts: Options):
         all_leds_gdf = gpd.read_file(geojson_output_path)
     else:
         # Filter the LED data to include only the top entities and drop NaN values
-        led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
+        #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
 
   
         # Allocate LEDs based on population
+        led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
         all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
         # If in manual manipulation mode, the script will exit after creating the GeoJSON
