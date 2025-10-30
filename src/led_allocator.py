@@ -1,10 +1,8 @@
 import os
-#import numpy as np
+import numpy as np
 import pandas as pd
-#import rasterio
-#from shapely.geometry import Point
 import geopandas as gpd
-#from rasterio.mask import mask
+
 
 def allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_ocean=True, use_edited_geojson=False, manual_manipulation=False, geojson_output_path="led_positions_for_manual_edit.geojson", prev_edited_geojson_path="prev_edited_led_positions.geojson"):
     if not allocate_leds:
@@ -58,15 +56,17 @@ def allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_o
                         
                         while leds_placed < num_leds:
 
-                            values_sorted_filtered = values_sorted[values_sorted['country'] == country_name]
-                            surround_indices = [x-surround for x in values_sorted_filtered.index] + [x+surround for x in values_sorted_filtered.index] 
-                            surround_indices = values_sorted.loc[surround_indices].query("country.isnull()").index
-                            values_sorted.loc[surround_indices, "country"] = country_name
+                            surround_indices = ([x - (720*surround) for x in values_array.point_index] + 
+                                                [x + (720*surround) for x in values_array.point_index] +
+                                                [x - surround for x in values_array.point_index] + 
+                                                [x + surround for x in values_array.point_index]) 
+                            surround_indices = np.unique(list(filter(lambda x: x >= 0, surround_indices)))
+                            values_filtered = energy_timeseries[energy_timeseries["point_index"].isin(surround_indices)].query("country.isnull()")
 
-                            for leds in surround_indices: # Place remaining LEDs on the land-space
-                                all_leds_gdf = pd.concat([all_leds_gdf, gpd.GeoDataFrame({'geometry': [values_sorted["geometry"].iloc[leds]],
+                            for leds in range(len(values_filtered)): # Place remaining LEDs on the land-space
+                                all_leds_gdf = pd.concat([all_leds_gdf, gpd.GeoDataFrame({'geometry': [values_filtered["geometry"].iloc[leds]],
                                                                                         'Country': [country_name],
-                                                                                        'Raster_Density': [values_sorted[f"{year}"].iloc[leds]]
+                                                                                        'Raster_Density': [values_filtered[f"{year}"].iloc[leds]]
                                                                                         }, geometry='geometry')], ignore_index=True)
                                 leds_placed += 1
                                 if leds_placed >= num_leds:
