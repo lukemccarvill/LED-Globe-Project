@@ -4,14 +4,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="gore-map-projection",  # Change this to your project name
+    name="LED-Globe-Project",
     version="0.1.0",
-    author="Your Name",  # Change this
-    author_email="your.email@example.com",  # Change this
-    description="A tool for mapping world data onto gore projections",
+    author="Luke McCarvill",
+    description="A tool for mapping energy consumption data ont LEDs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/your-repo",  # Change this
+    url="https://github.com/lukemccarvill/LED-Globe-Project",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
