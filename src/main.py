@@ -38,7 +38,9 @@ class Options:
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
 
-    raster_choice: str = "population"   # one of: "population", "nightlights"
+    raster_choice: str = "population"   # one of: "population", "nightlights", "ghs_volume", "ghs_surface"
+    raster_year: int = 2025 # all options except nightlights have options 1975-2025 except nightlights which is fixed to 2023
+
 # ~~~
 
 def run(opts: Options):
