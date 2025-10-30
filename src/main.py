@@ -13,7 +13,6 @@ import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
-matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from led_allocator import allocate_leds
@@ -34,7 +33,7 @@ class Options:
     manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
-
+    require_backend = True # Set to True if your env doesn't already have a gui backend
 
 # ~~~
 
@@ -71,7 +70,10 @@ def run(opts: Options):
     led_width = 0.002 # meters (2mm)
     led_height = 0.0035 # meters (3.5mm)
     num_gores = 12  # number of gores to draw
-    
+
+    # Establish gui backend if user specifies
+    if opts.require_backend:
+        matplotlib.use('TkAgg')
 
     # Load the country shapefile and LED data
     world = gpd.read_file(shapefile_path)
