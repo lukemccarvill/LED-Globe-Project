@@ -98,7 +98,7 @@ def get_options_gui(initial: Options) -> Options:
         "population": detect_years(pop_pat),
         "ghs_volume": detect_years(ghs_vol_pat),
         "ghs_surface": detect_years(ghs_surf_pat),
-        # nightlights is fixed to 2023
+        # nightlights is fixed to 2024
     }
 
     # ttk.Separator(frm).grid(row=row, column=0, sticky="ew", pady=(10, 6))
@@ -111,7 +111,7 @@ def get_options_gui(initial: Options) -> Options:
     raster_row = ttk.Frame(frm)
     raster_row.grid(row=row, column=0, sticky="w")
     ttk.Radiobutton(raster_row, text="Population density",            variable=raster_var, value="population").grid(row=0, column=0, padx=(0, 12))
-    ttk.Radiobutton(raster_row, text="Nighttime lights (2023)",       variable=raster_var, value="nightlights").grid(row=0, column=1, padx=(0, 12))
+    ttk.Radiobutton(raster_row, text="Nighttime lights (2024)",       variable=raster_var, value="nightlights").grid(row=0, column=1, padx=(0, 12))
     ttk.Radiobutton(raster_row, text="GHS — Building volume",         variable=raster_var, value="ghs_volume").grid(row=1, column=0, pady=(4,0))
     ttk.Radiobutton(raster_row, text="GHS — Building surface area",   variable=raster_var, value="ghs_surface").grid(row=1, column=1, pady=(4,0))
     row += 1
@@ -130,7 +130,7 @@ def get_options_gui(initial: Options) -> Options:
     year_box.grid(row=0, column=1)
 
     # Tiny hint
-    hint = ttk.Label(frm, text="Nighttime lights uses 2023 only. \n" 
+    hint = ttk.Label(frm, text="Nighttime lights uses 2024 only. \n" 
                      "Global Human Settlement (GHS) layers available every 5 years (1975–2025).", foreground="gray")
     hint.grid(row=row+1, column=0, sticky="w", pady=(4, 0))
     row += 2
@@ -138,8 +138,8 @@ def get_options_gui(initial: Options) -> Options:
     def refresh_year_control(*_):
         key = raster_var.get()
         if key == "nightlights":
-            year_box.configure(state="disabled", values=["2023"])
-            year_var.set("2023")
+            year_box.configure(state="disabled", values=["2024"])
+            year_var.set("2024")
         else:
             vals = [str(y) for y in years_by_key.get(key, [])]
             if not vals:
