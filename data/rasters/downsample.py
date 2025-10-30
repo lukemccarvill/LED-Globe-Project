@@ -96,7 +96,7 @@ def downsample_tif_fast(input_path, output_path, factor=60):
 
 def main():
     # Find all .tif files in current directory
-    tif_files = glob.glob("*.tif")
+    tif_files = glob.glob("**/*.tif")
 
     # Filter for GHS files
     ghs_files = [f for f in tif_files if f.startswith(('GHS_BUILT_S', 'GHS_BUILT_V', 'GHS_POP'))]

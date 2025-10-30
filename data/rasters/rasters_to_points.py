@@ -19,7 +19,7 @@ def extract_year_from_filename(filename):
 
 def get_raster_files_by_variable():
     """Group raster files by variable type"""
-    tif_files = glob.glob("*_30arcmin.tif")
+    tif_files = glob.glob("**/*_30arcmin.tif")
 
     variables = {
         'GHS_BUILT_V': [],
@@ -106,16 +106,17 @@ def process_variable(var_name, year_files, countries):
         year_col = str(year)
         gdf = add_year_data(gdf, raster_file, year_col)
 
+    # REMOVE FILTERING FOR ONLY POINTS WITH DATA TO GET THE OCEAN!
     # Filter to only points that have non-zero data in at least one year
     year_cols = [str(year) for year, _ in year_files]
 
     # Check for non-zero in any year
-    print(f"  Filtering to cells with data...")
-    mask = np.zeros(len(gdf), dtype=bool)
-    for col in year_cols:
-        mask |= (gdf[col] != 0)
+    #print(f"  Filtering to cells with data...")
+    #mask = np.zeros(len(gdf), dtype=bool)
+    #for col in year_cols:
+    #    mask |= (gdf[col] != 0)
 
-    gdf_filtered = gdf[mask].copy()
+    gdf_filtered = gdf#[mask].copy()
     print(f"  Points with data: {len(gdf_filtered):,} ({len(gdf_filtered) / len(gdf) * 100:.1f}%)")
 
     # Spatial join with countries
