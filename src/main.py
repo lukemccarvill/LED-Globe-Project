@@ -33,7 +33,7 @@ class Options:
     manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
-    require_backend = True # Set to True if your env doesn't already have a gui backend
+    require_backend = False # Set to True if your env doesn't already have a gui backend
 
 # ~~~
 
