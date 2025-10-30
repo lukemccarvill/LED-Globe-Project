@@ -17,6 +17,8 @@ from dataclasses import asdict
 from main import Options
 from typing import Optional
 # from typing import Dict, List, Tuple
+import os
+from PIL import Image, ImageTk, ImageOps
 
 def get_options_gui(initial: Options) -> Options:
     try:
@@ -32,7 +34,29 @@ def get_options_gui(initial: Options) -> Options:
     root.title("LED Globe Options")
     root.resizable(False, False)
 
-    frm = ttk.Frame(root, padding=16); frm.pack(fill="both", expand=True)
+    # create a container frame that can contain an image too
+    container = ttk.Frame(root, padding=12)
+    container.grid(row=0, column=0, sticky="nsew")
+
+    # the left column of the container is the options
+    frm = ttk.Frame(container)
+    frm.grid(row=0, column=0, sticky="new")
+
+    # right column is image
+    # img_frame = ttk.Frame(container)
+    # img_frame.grid(row=0, column=1, sticky="ne", padx=(20,0))
+
+    # Right column (image) — fill vertically and horizontally
+    img_frame = ttk.Frame(container)
+    img_frame.grid(row=0, column=1, sticky="nsew", padx=(20, 0))
+
+    # Allow both columns and the single row to expand
+    container.columnconfigure(0, weight=1)
+    container.columnconfigure(1, weight=1)
+    container.rowconfigure(0, weight=1)
+
+
+    # frm = ttk.Frame(root, padding=16); frm.pack(fill="both", expand=True)
 
     desc_label = ttk.Label(
         frm,
@@ -41,9 +65,6 @@ def get_options_gui(initial: Options) -> Options:
         wraplength=420  # keeps the text nicely wrapped
     )
     desc_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
-
-
-    
 
     # Add/remove toggles here
     schema = [
@@ -95,6 +116,27 @@ def get_options_gui(initial: Options) -> Options:
         result["opts"] = None
         root.destroy()
 
+    # load and display image on right side
+    try:
+        project_root = os.path.dirname(os.path.dirname(__file__))
+        img_path = os.path.join(project_root, "images", "sample.png") # rename the file depending on what file i end up using. could also show the previously generated image from outputs
+        img = Image.open(img_path)
+        img.thumbnail((250, 250)) # may need to edit these dims
+        img_tk = ImageTk.PhotoImage(img)
+        img_label = ttk.Label(img_frame, image=img_tk)
+        img_label.image = img_tk # to prevent it from being deleted? garbage collection
+        img_label.pack(expand=True) #add right side?
+        caption = ttk.Label(
+            img_frame,
+            text="Low-res preview using defaults",
+            font=("", 9, "italic"),
+            foreground="gray",
+            justify="center"
+        )
+        caption.pack(pady=(6,0))
+    except Exception as e:
+        print(f"Could not load preview image: {e}")
+
     btns = ttk.Frame(frm)
     btns.grid(row=row, column=0, sticky="e", pady=(12, 0))
     ttk.Button(btns, text="Cancel", command=on_cancel).grid(row=0, column=0, padx=(0, 8))
@@ -103,7 +145,9 @@ def get_options_gui(initial: Options) -> Options:
     root.bind("<Escape>", lambda e: on_cancel())
 
     root.update_idletasks()
-    w, h = 440, (len(schema) * 28) + 180
+    # w, h = 440, (len(schema) * 28) + 180
+    w, h = 720, (len(schema) * 28) + 160
+
     sw, sh = root.winfo_screenwidth(), root.winfo_screenheight()
     root.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
