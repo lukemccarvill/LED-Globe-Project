@@ -65,7 +65,7 @@ def run(opts: Options):
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
     # Parameters for the final output -- put these in GUI eventually?
-    year = 2005
+    year = 2025
     tot_leds = 3500 # number of leds to add
     final_width = 4 # meters
     final_height = 2 # meters
