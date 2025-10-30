@@ -129,37 +129,69 @@ def plot_clipped_example(world, gores_gdf, country_name='United States of Americ
 
 
 def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
-    """Map a polygon from lon/lat to gore coordinate space"""
+    """Map a polygon from lon/lat to gore coordinate space with proper interpolation based on y_gore values"""
     x, y = polygon.exterior.xy
     gore_x, gore_y = [], []
 
     x_left, x_right, y_gore = gore_boundaries[gore_index]
-    gore_width = 360 / len(gore_boundaries)
+    gore_width = 360 / len(gore_boundaries)  # Should be 30 for 12 gores
 
     # Calculate the longitude range for THIS specific gore
     gore_lon_min = -180 + (gore_index * gore_width)
     gore_lon_max = gore_lon_min + gore_width
+
+    # Convert lists to numpy arrays for easier interpolation
+    y_gore_array = np.array(y_gore)
+    x_left_array = np.array(x_left)
+    x_right_array = np.array(x_right)
 
     for lon_point, lat_point in zip(x, y):
         # Calculate position within THIS gore (0 to 1)
         relative_lon = (lon_point - gore_lon_min) / gore_width
         relative_lat = (lat_point + 90) / 180
 
-        # Clamp values to [0, 1]
+        # Clamp values to [0, 1] to handle floating point errors
         relative_lon = max(0, min(1, relative_lon))
         relative_lat = max(0, min(1, relative_lat))
 
-        # Use numpy's interp function to interpolate based on actual y_gore values
-        # We need to map from latitude (-90 to 90) to the gore's y-coordinates
-        lat_normalized = np.linspace(-90, 90, len(y_gore))  # Assumes y_gore is evenly spaced in lat
+        # Map relative_lat to the actual y coordinate in gore space
+        # y_gore ranges from its min to max value (typically bottom to top of gore)
+        target_y = y_gore_array[0] + relative_lat * (y_gore_array[-1] - y_gore_array[0])
 
-        # Interpolate to find the correct y position and x boundaries
-        y_pos = np.interp(lat_point, lat_normalized, y_gore)
-        x_left_at_lat = np.interp(lat_point, lat_normalized, x_left)
-        x_right_at_lat = np.interp(lat_point, lat_normalized, x_right)
+        # Find the two points in y_gore that bracket target_y
+        # Use searchsorted to find where target_y would fit in the sorted y_gore array
+        if y_gore_array[-1] > y_gore_array[0]:
+            # y_gore is increasing (normal case)
+            idx_upper = np.searchsorted(y_gore_array, target_y)
+        else:
+            # y_gore is decreasing (shouldn't happen but handle it)
+            idx_upper = np.searchsorted(y_gore_array[::-1], target_y)
+            idx_upper = len(y_gore_array) - idx_upper
+
+        # Clamp indices
+        idx_upper = max(1, min(len(y_gore_array) - 1, idx_upper))
+        idx_lower = idx_upper - 1
+
+        # Calculate interpolation weight based on actual y values
+        y_lower = y_gore_array[idx_lower]
+        y_upper = y_gore_array[idx_upper]
+
+        if abs(y_upper - y_lower) < 1e-10:
+            # Points are essentially the same, use lower point
+            t = 0.0
+        else:
+            t = (target_y - y_lower) / (y_upper - y_lower)
+            t = max(0, min(1, t))  # Clamp to [0, 1]
+
+        # Interpolate to get the actual y position
+        y_pos = y_lower * (1 - t) + y_upper * t
+
+        # Interpolate left and right boundaries at this y position
+        x_left_interp = x_left_array[idx_lower] * (1 - t) + x_left_array[idx_upper] * t
+        x_right_interp = x_right_array[idx_lower] * (1 - t) + x_right_array[idx_upper] * t
 
         # Calculate final x position
-        x_pos = x_left_at_lat + relative_lon * (x_right_at_lat - x_left_at_lat)
+        x_pos = x_left_interp + relative_lon * (x_right_interp - x_left_interp)
 
         gore_x.append(x_pos)
         gore_y.append(y_pos)

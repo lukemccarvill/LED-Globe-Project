@@ -9,7 +9,7 @@ import numpy as np
 # CONFIGURATION
 # ============================================================
 ENERGY_UNIT_COUNTRY = 'PWh'
-ENERGY_UNIT_PERCAPITA = 'TWh'
+ENERGY_UNIT_PERCAPITA = 'kWh'
 
 # Unified configuration for all figures
 FIGURE_CONFIG = {
@@ -64,6 +64,7 @@ def convert_units(df, column, from_unit, to_unit):
     conversions = {
         ('TWh', 'PWh'): lambda x: x / 1000,
         ('TWh', 'TWh'): lambda x: x,
+        ('kWh', 'kWh'): lambda x: x,
         ('kWh', 'PWh'): lambda x: x / 1e12,
         ('kWh', 'TWh'): lambda x: x / 1e9,
     }

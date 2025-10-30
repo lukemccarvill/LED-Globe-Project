@@ -15,11 +15,8 @@ import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
-matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
-
 from dataclasses import dataclass
-
 from led_allocator import allocate_leds
 from country_mapper import draw_countries_on_gores
 from gore_drawer import plot_multiple_gores
@@ -33,11 +30,12 @@ class Options:
     draw_equator: bool = True # set to True if you want a black line along the equator to divide gore halves
     draw_countries: bool = True  # set to False if you don't want country mappings
     draw_leds: bool = True  # set to False if you don't want LED markings
-    use_edited_geojson: bool = True  # Set to True to use a previously edited GeoJSON file from the data folder
+    place_ocean: bool = True  # set to True to put missing LEDs in ocean
+    use_edited_geojson: bool = False  # Set to True to use a previously edited GeoJSON file from the data folder
     manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
-
+    require_backend = False # Set to True if your env doesn't already have a gui backend
     raster_choice: str = "population"   # one of: "population", "nightlights", "ghs_volume", "ghs_surface"
     raster_year: int = 2025 # all options except nightlights have options 1975-2025 except nightlights which is fixed to 2024
 
@@ -50,8 +48,10 @@ def run(opts: Options):
 
     # Define relative paths based on the project structure
     data_dir = os.path.join(project_root, 'data')
+    raster_dir = os.path.join(data_dir, "rasters")
     transient_dir = os.path.join(project_root, 'transients') # these are temp/middle-of-the-process files
     output_dir = os.path.join(project_root, 'outputs')
+
     # Ensure the output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -76,9 +76,12 @@ def run(opts: Options):
     else:
         raster_path = None
 
+    energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg") # ~~~~~~~~~~ I THINK THIS WILL NEED TO BE UPDATED SOMEHOW; need nightlight tif processed to make gpkg for it too.
     country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
     # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
+    year = 2025
+    energy_timeseries = gpd.read_file(energy_raster_path)
     geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
@@ -88,14 +91,10 @@ def run(opts: Options):
     led_width = 0.002 # meters (2mm)
     led_height = 0.0035 # meters (3.5mm)
     num_gores = 12  # number of gores to draw
-    # draw_gores = True  # set to False if you don't want gore outlines
-    # draw_equator = True # set to True if you want a black line along the equator to divide gore halves
-    # draw_countries = True  # set to False if you don't want country mappings
-    # draw_leds = False  # set to False if you don't want LED markings
-    # use_edited_geojson = True  # Set to True to use a previously edited GeoJSON file from the data folder
-    # manual_manipulation = False  # set to True to enable manual manipulation mode
-    # create_coords_for_manufact = False  # Toggle this to create gore half coordinates for pick-and-place
-    # use_simplified_countries = False  # Set to True to use pre-simplified geopackage (faster loading)
+
+    # Establish gui backend if user specifies
+    if opts.require_backend:
+        matplotlib.use('TkAgg')
 
     # Load the country shapefile and LED data
     world = gpd.read_file(shapefile_path)
@@ -122,8 +121,9 @@ def run(opts: Options):
         # Filter the LED data to include only the top entities and drop NaN values
         led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
 
+  
         # Allocate LEDs based on population
-        all_leds_gdf = allocate_leds(led_data, world, raster_path, allocate_leds=opts.draw_leds, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
         # If in manual manipulation mode, the script will exit after creating the GeoJSON
         if opts.manual_manipulation and opts.draw_leds:

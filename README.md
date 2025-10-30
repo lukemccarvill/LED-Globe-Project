@@ -237,5 +237,4 @@ Contributions are welcome! If you'd like to work on any of those "future work" i
 
 - **Fork the repository** and submit a pull request with your improvements.
 - **Report issues** or bugs via GitHub's issue tracker.
-- **Start discussions** and/or ask questions in the Discussions tab.  
-
+- **Start discussions** and/or ask questions in the Discussions tab.
