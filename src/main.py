@@ -15,6 +15,7 @@ import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
+matplotlib.use("TkAgg") # LUKE NEEDS THIS ON HIS COMPUTER FOR SOME REASON # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from led_allocator import allocate_leds
@@ -59,7 +60,7 @@ def run(opts: Options):
     # paths for data, transients, and output files
     shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
     # raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
-    raster_dir = os.path.join(project_root, 'nightlight_vs_population')
+    # raster_dir = os.path.join(project_root, 'nightlight_vs_population') # I DONT THINK WE NEED THE NIGHTLIGHT VS POP FOLDER AT ALL ANYMORE ~~~
 
     def _find_raster(patterns):
         if os.path.isdir(raster_dir):
