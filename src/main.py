@@ -114,12 +114,8 @@ if create_coords_for_manufact:
 output_base = output_svg_filename.replace('.svg', '')
 
 # High-res PNG for viewing
-fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
-print(f"High-res PNG saved as {output_base}_highres.png")
-
-# Lower-res PNG for quick preview
-fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
-print(f"Preview PNG saved as {output_base}_preview.png")
+fig.savefig(f"{output_base}.png", format="png", dpi=300, pad_inches=0, transparent=True)
+print(f"High-res PNG saved as {output_base}.png")
 
 # Rasterized SVG (much smaller)
 for collection in ax.collections:
