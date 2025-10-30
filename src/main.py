@@ -34,7 +34,7 @@ class Options:
     manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
-
+    require_backend = False # Set to True if your env doesn't already have a gui backend
 
 # ~~~
 
@@ -72,7 +72,10 @@ def run(opts: Options):
     led_width = 0.002 # meters (2mm)
     led_height = 0.0035 # meters (3.5mm)
     num_gores = 12  # number of gores to draw
-    
+
+    # Establish gui backend if user specifies
+    if opts.require_backend:
+        matplotlib.use('TkAgg')
 
     # Load the country shapefile and LED data - old method
     #world = gpd.read_file(shapefile_path)
@@ -100,8 +103,6 @@ def run(opts: Options):
     else:
         # Filter the LED data to include only the top entities and drop NaN values
         #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
-
-  
         # Allocate LEDs based on population
         led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
         all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)

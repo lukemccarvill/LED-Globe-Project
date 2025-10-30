@@ -49,7 +49,7 @@ print("Metadata saved to: ../data/API/global_energy_consumption_metadata.json\n"
 
 #endregion
 
-## --------------------------------------------- PER CAPITA ENERGY CONSUMPTION ---------------------------------------------
+## ------------------------------------------- PER CAPITA ENERGY CONSUMPTION -------------------------------------------
 # region
 
 # Fetch the data
