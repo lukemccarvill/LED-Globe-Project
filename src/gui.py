@@ -6,6 +6,13 @@ minimal gui for project toggles and parameters
 Run this script, and it will call upon main.py.
 '''
 
+desc = (
+    "This program generates a world map divided into gores for a flexible PCB globe.\n"
+    "It uses either a population density or nighttime light raster to distribute LEDs, "
+    "and can draw outlines, LEDs, and other optional features."
+)
+
+
 from dataclasses import asdict
 from main import Options
 from typing import Optional
@@ -27,6 +34,17 @@ def get_options_gui(initial: Options) -> Options:
 
     frm = ttk.Frame(root, padding=16); frm.pack(fill="both", expand=True)
 
+    desc_label = ttk.Label(
+        frm,
+        text=desc,
+        justify="left",
+        wraplength=420  # keeps the text nicely wrapped
+    )
+    desc_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+
+    
+
     # Add/remove toggles here
     schema = [
         ("Draw gore outlines", "draw_gores"),
@@ -40,7 +58,7 @@ def get_options_gui(initial: Options) -> Options:
     ]
 
     bool_vars = {}
-    row = 0
+    row = 1
     for label, field in schema:
         v = tk.BooleanVar(value=getattr(initial, field))
         bool_vars[field] = v
@@ -85,7 +103,7 @@ def get_options_gui(initial: Options) -> Options:
     root.bind("<Escape>", lambda e: on_cancel())
 
     root.update_idletasks()
-    w, h = 420, (len(schema) * 28) + 110
+    w, h = 440, (len(schema) * 28) + 180
     sw, sh = root.winfo_screenwidth(), root.winfo_screenheight()
     root.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
