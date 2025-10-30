@@ -3,6 +3,7 @@ minimal gui for project toggles and parameters
 - uses Tkinter
 - to add more toggles, add parameter in options and in SCHEMA
 
+Run this script, and it will call upon main.py.
 '''
 
 from dataclasses import asdict

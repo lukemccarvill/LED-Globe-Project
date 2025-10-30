@@ -9,6 +9,8 @@
 #   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
 # Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
 
+### We recommend running gui.py, which creates a GUI pop-up to interface with rather than interacting with this script.
+
 import os
 import geopandas as gpd
 import pandas as pd
