@@ -254,25 +254,8 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
             base_color = '#FF0000'  # Bright red for unmapped countries
             print(f"Warning: No continent mapping for {country_name} (continent: {continent})")
 
-        # Apply LED intensity if enabled
-        if color_by_leds and led_counts is not None and norm is not None:
-            country_idx = country.Index
-            num_leds = led_counts.get(country_idx, 0)
-
-            # Convert hex to RGB
-            import matplotlib.colors as mcolors
-            rgb = mcolors.hex2color(base_color)
-
-            # Scale brightness based on LED count (0.3 to 1.0 range for visibility)
-            intensity = 0.3 + 0.7 * norm(num_leds)
-
-            # Apply intensity to RGB
-            country_color = tuple(c * intensity for c in rgb)
-
-            print(f"{country_name}: {num_leds} LEDs (intensity: {intensity:.2f})")
-        else:
-            # Use base continent color
-            country_color = base_color
+        # Use base continent color
+        country_color = base_color
 
         # Get country geometry
         country_geom = country.geometry
@@ -337,7 +320,7 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
                             continue
 
                         # Plot the polygon
-                        ax.fill(gore_x, gore_y, color=country_color, linewidth=0, edgecolor='none')
+                        ax.fill(gore_x, gore_y, color=country_color, linewidth=0, edgecolor='black')
 
                     except Exception as e:
                         # Skip problematic polygons

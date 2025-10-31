@@ -9,15 +9,13 @@
 #   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
 # Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
 
-import os
-import geopandas as gpd
-import pandas as pd
 import matplotlib
 matplotlib.use("TkAgg")   # Luke needs this for it to run. matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
 from gores import *
+from config import *
 
 # ~~~ to interface with gui
 @dataclass
@@ -39,9 +37,6 @@ class Options:
     # Color mode selection
     COLOR_MODE = 'leds'  # Options: 'continent', 'leds'
 
-    # LED-based color scheme
-    LED_COLORMAP = 'red'  # Yellow-Orange-Red (more LEDs = redder)
-    # Other good options: 'viridis', 'plasma', 'inferno', 'hot', 'RdYlGn_r'
 # ~~~
 
 def run(opts: Options):
@@ -193,7 +188,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("./data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("../data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
@@ -216,8 +211,8 @@ def run(opts: Options):
         # Filter the LED data to include only the top entities and drop NaN values
         #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
         # Allocate LEDs based on population
-        led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
+        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
         # If in manual manipulation mode, the script will exit after creating the GeoJSON
         if opts.manual_manipulation and opts.draw_leds:
@@ -246,14 +241,6 @@ def run(opts: Options):
 
     # Save both PNG and simplified SVG
     output_base = output_svg_filename.replace('.svg', '')
-
-    # High-res PNG for viewing
-    # fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
-    # print(f"High-res PNG saved as {output_base}_highres.png")
-
-    # # Lower-res PNG for quick preview
-    # fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
-    # print(f"Preview PNG saved as {output_base}_preview.png")
 
     # Rasterized SVG (much smaller)
     for collection in ax.collections:

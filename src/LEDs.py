@@ -52,18 +52,18 @@ import pandas as pd
 import geopandas as gpd
 import os
 
-def determine_num_leds(led_data, energy_timeseries, year, tot_leds):
-    countries = set(energy_timeseries["country"])
+def determine_num_leds(led_data, not_countries, year, tot_leds):
     led_data = led_data.pivot(index="Entity", columns="Year", values="primary_energy_consumption__twh").reset_index()
-    led_data = led_data[led_data["Entity"].isin(countries)]
+    led_data = led_data[~led_data["Entity"].isin(not_countries)]
 
     missing = max(led_data.isna().sum())
     idx = (np.abs(led_data.columns.values[1:-1] - year)).argmin() + 1
     energy_year = led_data.columns.values[idx]
-    while missing > 10:
-        missing = led_data.isna().sum().loc[energy_year]
-        if missing > 10:
-            energy_year -= 1
+    if energy_year > 1975:
+        while missing > 10:
+            missing = led_data.isna().sum().loc[energy_year]
+            if missing > 10:
+                energy_year -= 1
 
     led_data = led_data[['Entity', energy_year]]
     total_energy = led_data[energy_year].sum()
@@ -79,7 +79,7 @@ def determine_num_leds(led_data, energy_timeseries, year, tot_leds):
     return led_data
 
 
-def allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_ocean=True, use_edited_geojson=False,
+def allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=True, place_ocean=True, use_edited_geojson=False,
                   manual_manipulation=False, geojson_output_path="led_positions_for_manual_edit.geojson",
                   prev_edited_geojson_path="prev_edited_led_positions.geojson"):
     if not allocate_leds:
@@ -96,10 +96,13 @@ def allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_o
     for index, row in led_data.iterrows():
 
         country_name = row['Entity']
+        if country_name in alias.keys():
+            country_name = alias[country_name]
         num_leds = int(row['Round'])
         leds_placed = 0
 
-        values_array = energy_timeseries[energy_timeseries['country'] == country_name]
+        if type(country_name) == str: values_array = energy_timeseries[energy_timeseries['country']== country_name]
+        else: values_array = energy_timeseries[energy_timeseries['country'].isin(country_name)]
         values_array = values_array[["point_index", f"{year}", "geometry"]].sort_values(f"{year}", ascending=False)
 
         available_cells = len(values_array)
