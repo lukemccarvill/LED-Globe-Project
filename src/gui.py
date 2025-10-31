@@ -54,10 +54,10 @@ def get_options_gui(initial: Options) -> Options:
 		("Draw equator line", "draw_equator"),
 		("Draw countries", "draw_countries"),
 		("Draw LED markers", "draw_leds"),
-		("Use pre-edited GeoJSON (recommended True)", "use_edited_geojson"), # deprecated?
-		("Manual manipulation mode (recommended False)", "manual_manipulation"), # deprecated?
+		# ("Use pre-edited GeoJSON (recommended True)", "use_edited_geojson"), # deprecated?
+		# ("Manual manipulation mode (recommended False)", "manual_manipulation"), # deprecated?
 		("Create coordinate spreadsheet for PCB manufacturing", "create_coords_for_manufact"),
-		("Use simplified countries", "use_simplified_countries"),
+		# ("Use simplified countries", "use_simplified_countries"),
 	]
 
 	bool_vars = {}
