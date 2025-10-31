@@ -7,6 +7,8 @@ minimal gui for project toggles and parameters
 
 from dataclasses import asdict
 from main import Options
+from LEDs import *
+from gores import *
 # from typing import Dict, List, Tuple
 
 def get_options_gui(initial: Options) -> Options:

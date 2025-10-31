@@ -16,11 +16,8 @@ import matplotlib
 #matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
-from led_allocator import determine_num_leds, allocate_leds
-from country_mapper import draw_countries_on_gores
-from gore_drawer import plot_multiple_gores
-from led_plotter import plot_leds_on_gores
-from per_gorehalf_coords import create_gorehalf_coords
+from LEDs import *
+from gores import plot_multiple_gores, draw_countries_on_gores, plot_leds_on_gores, create_gorehalf_coords
 
 # ~~~ to interface with gui
 @dataclass
@@ -155,3 +152,8 @@ def run(opts: Options):
 if __name__ == "__main__":
     # click run on main.py to run with defaults (no gui)
     run(Options())
+
+#def save_plot_as_svg(fig, filename="world_on_gores.svg"):
+    # Save the figure to an SVG file
+    #print("Saving SVG file...")
+    #fig.savefig(filename, format='svg')
