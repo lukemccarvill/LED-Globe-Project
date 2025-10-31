@@ -1,7 +1,6 @@
 """
-LED Allocation System for Geographic Energy Visualization
 
-This module provides functionality for distributing and positioning LEDs on a geographic map
+This script provides functionality for distributing and positioning LEDs on a geographic map
 based on country-level energy consumption data. It consists of two main components:
 
 1. determine_num_leds: Calculates the number of LEDs to allocate to each country based on
@@ -45,6 +44,7 @@ allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_ocean
     Outputs:
         - GeoDataFrame with columns: ['geometry', 'Country', 'Raster_Density']
           containing Point geometries for each LED position
+
 """
 
 import numpy as np

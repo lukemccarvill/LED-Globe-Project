@@ -1,9 +1,27 @@
+"""
+
+Creates bar charts and line charts for global energy consumption analysis, showing both
+total country-level consumption and per capita consumption patterns over time.
+
+Inputs:
+    - ../data/API/global_energy_consumption.csv: Country-level energy consumption data
+      Required columns: 'Entity', 'Year', energy consumption column (TWh)
+    - ../data/API/per_capita_energy_consumption.csv: Per capita energy consumption data
+      Required columns: 'Entity', 'Year', per capita consumption column (kWh)
+    - config.py: Contains not_countries list and countries_by_continent dictionary
+
+Outputs:
+    - Bar charts: Top N countries + aggregated remaining countries for most recent year
+    - Line charts: Historical trends for top N countries + aggregated remaining countries
+    - All figures saved to ../images/figures/
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from config import not_countries, countries_by_continent
 import os
 from matplotlib.patches import Patch
-import numpy as np
 
 # ============================================================
 # CONFIGURATION
