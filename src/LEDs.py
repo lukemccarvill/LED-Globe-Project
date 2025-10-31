@@ -74,17 +74,15 @@ def determine_num_leds(led_data, not_countries, year, tot_leds):
     return led_data
 
 
-def allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=True, place_ocean=True, use_edited_geojson=False,
-                  manual_manipulation=False, geojson_output_path="led_positions_for_manual_edit.geojson",
-                  prev_edited_geojson_path="prev_edited_led_positions.geojson"):
+def allocate_leds(led_data, energy_timeseries, year, alias, place_ocean=True):
     if not allocate_leds:
         print("LED allocation skipped as draw_leds is set to False.")
         return gpd.GeoDataFrame()  # Return an empty GeoDataFrame
 
     # If using a previously edited GeoJSON, load that file and skip LED allocation
-    if use_edited_geojson and os.path.exists(prev_edited_geojson_path):
+    """if use_edited_geojson and os.path.exists(prev_edited_geojson_path):
         print(f"Using the previously edited GeoJSON file from the data folder: {prev_edited_geojson_path}")
-        return gpd.read_file(prev_edited_geojson_path)
+        return gpd.read_file(prev_edited_geojson_path)"""
 
     all_leds_gdf = gpd.GeoDataFrame()  # Stores all valid LED positions
 
@@ -160,9 +158,9 @@ def allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=True, 
                         break
 
     # If manual manipulation is enabled, output the GeoJSON to the transients folder
-    if manual_manipulation:
+    """if manual_manipulation:
         all_leds_gdf.to_file(geojson_output_path, driver='GeoJSON')
         print(f"LED positions saved to {geojson_output_path} for manual manipulation.")
-        return all_leds_gdf  # Return the GeoDataFrame for further processing if needed
+        return all_leds_gdf  # Return the GeoDataFrame for further processing if needed"""
 
     return all_leds_gdf

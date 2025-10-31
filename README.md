@@ -82,7 +82,7 @@ Spiros Staridas created a beautiful 12-gore map which we used as a reference:
   <strong>Figure 4:</strong> "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Source</a>]
 </p>
 
-Transforming this Mercator projection to gores is no simple task, as GIS softwares such as QGIS do not support interrupted map projections. Therefore, it was up to me (with the excellent help of ChatGPT) to create code that would perform the mathematical transformation from the latitude and longitude coordinates onto the flattened gore coordinates. This was the most intellectually challenging component of it, as we needed to account for the curvature of the Earth, adjust for the narrowing of the gores near the poles, and interpolate positions between the left and right boundaries of each gore based on latitude and longitude.
+Transforming this Mercator projection to gores is no simple task, as GIS softwares such as QGIS do not support interrupted map projections. Therefore, Luke (with the excellent help of ChatGPT) created code that would perform the mathematical transformation from the latitude and longitude coordinates onto the flattened gore coordinates. This was the most intellectually challenging component of it, as we needed to account for the curvature of the Earth, adjust for the narrowing of the gores near the poles, and interpolate positions between the left and right boundaries of each gore based on latitude and longitude.
 
 <p align="center">
   <img src="images/GoresToTurboRaster_slow.gif" alt="see fig title" width="550"/>
@@ -132,7 +132,7 @@ The dominance in energy consumption seen from the top few nations – particular
  <p align="center">
   <img src="images/figures/energy_consumption_country_timeline.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 11:</strong> A graph of energy usage over time.
+  <strong>Figure 10:</strong> A graph of energy usage over time.
 </p>
 
 
@@ -143,10 +143,10 @@ The other useful output from this project is the creation of an Excel workbook c
 <p align="center">
   <img src="images/Pick-and-Place_Excel_Screenshot.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 12:</strong> Screen Capture of Pick-and-Place Excel Workbook
+  <strong>Figure 11:</strong> Screen Capture of Pick-and-Place Excel Workbook
 </p>
 
-Interestingly, as seen in Figure 12, there are six gore halves which contain zero LEDs – can you identify them on the SVG map?
+Interestingly, as seen in Figure 11, there are six gore halves which contain zero LEDs – can you identify them on the SVG map?
 
 
 
@@ -195,6 +195,8 @@ Many thanks to Dr. Andrew Swingler, my supervisor in the UPEI Faculty of Sustain
 
 Thank you to Dr. Eric Galbraith of McGill University for the idea of using the nighttime lights instead of population density – this will hopefully be incorporated in future versions.
 
+Version two of this code was also worked on by Alexander Martin and An Mei Daniels. Legacy version is still visible under `branch/v2_nightlight`.
+
 ChaptGPT (GPT-4o) was also used extensively in the programming and problem-solving process.
 
 
@@ -210,25 +212,32 @@ First, clone the repository to your local machine:
 ### 2. Install dependencies
 Make sure you have Python 3.x installed. Install the required dependencies by running (depending on your python distribution):  
 `pip install -r requirements.txt`  or `mamba install --yes --file requirements.txt`
+
 This will install the necessary Python libraries like geopandas, pandas, rasterio, and matplotlib.
 
-### 3. Adjust Parameters
-In `main.py`, you can adjust the parameters to suit your project needs:
-- `draw_gores`, `draw_countries`, `draw_leds`, `draw_equator`: Toggle whether to draw the gores, countries, LED markers, and/or equator.
-- `create_coords_for_manufact`: Set this to `True` to create the pick-and-place spreadsheet with the LED coordinates on the gores.
-- *In the future, the dimensions and number of gores variables will hopefully function with arbitrary values, but currently, those values are hardcoded.*
+### 3. Run the Main Script
+Run the `gui.py` script to generate the 4000x2000mm SVG map:  
+`python src/gui.py`. This will first open a GUI interface, allowing the user to dynamically choose some parameters.
 
-### 4. Run the Main Script
-Run the `main.py` script to generate the 4000x2000mm SVG map:  
-`python src/gui.py`  
-Make sure you close any open files (e.g., in QGIS or Excel) to avoid permission errors.
+To adjust the final map image look, the user can select whether the followng are visible:
+- gore outlines
+- the equator line
+- the country borders
+- LED markers
+- whether the coordinates are created in an Excel file for the manufacturer
 
-### 5. View the Output
+The user can select the following parameters to change how the LEDs are allocated:
+- what raster is used to determine where LEDs are placed
+- what year is used
+
+If the user is confident with editing the code, the user can also enter `src/main.py` and edit some parameters, such as the total number of LEDs allocated (`tot_leds`) or information about the globe size (e.g. `final_width` or `num_gores`).
+
+### 4. View the Output
 - The output SVG will be shown in Matplotlib; this figure should pop up automatically if there are no errors. Close any existing open Matplotlib figures before running the script.
 - The output SVG file will be saved in the `outputs/` folder as `full_map_4m_by_2m.svg`.
 
-### 6. Pick-and-Place File
-If you enabled `create_coords_for_manufact`, a pick-and-place Excel file with the LED coordinates for each gore half will be created. Each sheet in the file corresponds to one gore half for manufacturing. This `gorehalf_coordinates_with_sheets.xlsx` will be found in the `/outputs` folder.
+### 5. Pick-and-Place File
+If you enabled `Create coordinate spreadsheet for PCB manufacturing`, a pick-and-place Excel file with the LED coordinates for each gore half will be created. Each sheet in the file corresponds to one gore half for manufacturing. This `gorehalf_coordinates_with_sheets.xlsx` will be found in the `/outputs` folder.
 
 For manufacturing, the flexible PCB can be designed with two layers: one dedicated to 2.12 V and the other to 0 V. This strategy simplifies the design, similar to solar PV cell design, by eliminating the need for thousands of individual traces and ensuring even power delivery across all LEDs. Hooking up the power supply at the North Pole would also probably be best. Then, these strips can be placed on some sphere like an inflatable balloon or even a rigid ball.
 

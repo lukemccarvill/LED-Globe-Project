@@ -30,8 +30,8 @@ class Options:
     draw_countries: bool = True  # set to False if you don't want country mappings
     draw_leds: bool = True  # set to False if you don't want LED markings
     place_ocean: bool = True  # set to True to put missing LEDs in ocean
-    use_edited_geojson: bool = False  # Set to True to use a previously edited GeoJSON file from the data folder
-    manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
+    #use_edited_geojson: bool = False  # Set to True to use a previously edited GeoJSON file from the data folder
+    #manual_manipulation: bool = False  # set to True to enable manual manipulation mode. NORMALLY FALSE.
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
     require_backend = False # Set to True if your env doesn't already have a gui backend
@@ -61,7 +61,6 @@ def run(opts: Options):
 
     # paths for data, transients, and output files
     shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-
     # raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
     # raster_dir = os.path.join(project_root, 'nightlight_vs_population') # I DONT THINK WE NEED THE NIGHTLIGHT VS POP FOLDER AT ALL ANYMORE ~~~
 
@@ -121,7 +120,7 @@ def run(opts: Options):
             raise FileNotFoundError(
                 f"No .gpkg files found in {raster_dir}. Please add '{chosen_file}' or a valid geopackage before running.")
 
-    geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
+    #geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
     # Parameters for the final output -- put these in GUI eventually?
@@ -140,7 +139,7 @@ def run(opts: Options):
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
     # Do we want to keep the old way of manually editing data now that we can dynamically update from API + dynamically allocate LEDs, even when out of cells to place them
     # Check if the edited GeoJSON file exists and use it if the flag is set
-    if opts.use_edited_geojson:
+    """if opts.use_edited_geojson:
         geojson_files = [f for f in os.listdir(data_dir) if f.endswith('.geojson')]
         if len(geojson_files) == 1:
             print(f"Using the GeoJSON file: {geojson_files[0]}")
@@ -158,11 +157,12 @@ def run(opts: Options):
             print("Manual manipulation mode is enabled. Please edit the GeoJSON file and rerun the script.")
             print("Please ensure you close QGIS before rerunning the script or else you will get an error that the GeoJSON file is being used by another software.")
             exit()  # Exit the script here to allow for manual edits
-    else:
+    else:"""
+    if opts.draw_leds:
         # Load the the energy consumption data for allocating LEDs and assign leds
         led_data = pd.read_csv(f"{data_dir}/API/global_energy_consumption.csv")
         led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, place_ocean=opts.place_ocean)
 
     # Set up the final figure dimensions (4000mm x 2000mm)
     fig, ax = plt.subplots(figsize=(final_width * 39.3701, final_height * 39.3701))  # Exact 4m x 2m canvas in inches
