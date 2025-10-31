@@ -33,7 +33,7 @@ For reference, here are the surface-mounted LEDs I'm referring to:
 <p align="center">
   <img src="images/smd-led-size-comparison.jpg" alt="see fig title" width="800"/>
   <br>
-  <strong>Figure 6:</strong> SMD LEDs on a Millimetre Scale [<a href="https://www.pcboard.ca/led-0805" target="_blank">Source</a>]
+  <strong>Figure 1:</strong> SMD LEDs on a Millimetre Scale [<a href="https://www.pcboard.ca/led-0805" target="_blank">Source</a>]
 </p>
 
 These LEDs are then placed on the globe based on various metrics taken as proxies for global population density. Therefore, within a given country, let's say China, its 970 allocated LEDs will be placed in its most densely-populated areas, in the hopes that these also closely align with the areas where most of China's energy is being used.
@@ -51,12 +51,12 @@ While information on the energy usage per country is available for use, approxim
 
 Both energy usage information and global population density information are available for multiple years, with the population densities measured every 5 years and going back as far as 1975, and measurements taken more frequently and going even further back for energy usage per country. This allows for a **comparison of historical energy distribution across the world**, as well as current energy distribution, which can show interesting trends.
 
-The following image shows the placement of the LEDs for energy usage in 2023 in QGIS: *note - switch to one of our python-made graphics to show off the code?*
+The following image shows the placement of the LEDs for energy usage in 2023 in QGIS:
 
 <p align="center">
   <img src="images/Global3500LEDs.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 4:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS
+  <strong>Figure 2:</strong> Placement of 3647 LED Markers on a Mercator Projection in QGIS
 </p>
 
 Zooming into North America, we can inspect the tessellation of the LED markers. This population density raster resolution (*30 arc-minute, approx. 55km*) was chosen specifically so that it could accommodate the size of an 0805 SMD LED footprint, which is about 3.5 mm long – snugly fitting inside of the ~3.6 mm side length of one of these tiles when scaled down.
@@ -64,7 +64,7 @@ Zooming into North America, we can inspect the tessellation of the LED markers. 
 <p align="center">
   <img src="images/NorthAmericaLEDs.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 5:</strong> North American LED Markers and Population Density Raster in QGIS
+  <strong>Figure 3:</strong> North American LED Markers and Population Density Raster in QGIS
 </p>
 
 
@@ -79,7 +79,7 @@ Spiros Staridas created a beautiful 12-gore map which we used as a reference:
 <p align="center">
   <img src="images/twelve-stripes-of-the-globe-featured-image-2048x1072.jpg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 7:</strong> "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Source</a>]
+  <strong>Figure 4:</strong> "Twelve Stripes of the Globe" from Spiros Staridas [<a href="https://www.staridasgeography.gr/twelve-stripes-of-the-globe/" target="_blank">Source</a>]
 </p>
 
 Transforming this Mercator projection to gores is no simple task, as GIS softwares such as QGIS do not support interrupted map projections. Therefore, it was up to me (with the excellent help of ChatGPT) to create code that would perform the mathematical transformation from the latitude and longitude coordinates onto the flattened gore coordinates. This was the most intellectually challenging component of it, as we needed to account for the curvature of the Earth, adjust for the narrowing of the gores near the poles, and interpolate positions between the left and right boundaries of each gore based on latitude and longitude.
@@ -89,7 +89,7 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
   <br>
   <img src="images/GoresToLEDMarkers_slow.gif" alt="see fig title" width="550"/>
   <br>
-  <strong>Figures 8 and 9:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Top) and SVG with Red LED Markers (Bottom)
+  <strong>Figures 5 and 6:</strong> GIFs Comparing Staridas' Gores to My Population Density Turbomap (Top) and SVG with Red LED Markers (Bottom)
 </p>
 
 
@@ -99,12 +99,12 @@ Transforming this Mercator projection to gores is no simple task, as GIS softwar
 
 ### 12-Gore Scalable Vector Graphic Map
 
-This leads us to the final visual result of the project: a 4000 mm wide by 2000 mm tall SVG. This graphic includes all 12 gores along with the 3467 LED markers as red rectangles of size 3.5 mm x 2 mm (the footprint of an 0805 SMD LED plus some small breathing room). You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice.
+This leads us to the final visual result of the project: a 4000 mm wide by 2000 mm tall SVG. This graphic includes all 12 gores along with the 3467 LED markers as yellow rectangles of size 3.5 mm x 2 mm (the footprint of an 0805 SMD LED plus some small breathing room). You can inspect this SVG simply by right-clicking the image and selecting *Open image in new tab*, or by downloading it from `/outputs` and opening it in the vector graphics editor of your choice.
 
 <p align="center">
   <img src="outputs/full_map_4m_by_2m.svg" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 10:</strong> Scalable Vector Graphic of the Gores Map with Red LED Markers
+  <strong>Figure 7:</strong> Scalable Vector Graphic of the Gores Map with yellow LED Markers
 </p>
 
 
@@ -115,7 +115,7 @@ The first interesting finding was just how unequal the world's energy usage is w
 <p align="center">
   <img src="images/Graph30Countries.png" alt="Graph of Top 30 Countries by Primary Energy Consumption" width="700"/>
   <br>
-  <strong>Figure 1:</strong> Graph of Top 30 Countries by Primary Energy Consumption
+  <strong>Figure 8:</strong> Graph of Top 30 Countries by Primary Energy Consumption
 </p>
 
 This is only the top 30 countries – let's instead include all 212 entities (193 countries plus some dependencies, microstates, etc. included by *Our World in Data*). The dominance in energy consumption seen from the top few nations – particularly China – is incredible.
@@ -124,7 +124,7 @@ This is only the top 30 countries – let's instead include all 212 entities (19
   <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="550"/><br>
   <img src="images/Graph_PEC_AllCountries_LogScale.png" alt="Graph of All Countries (Log Scale)" width="550"/>
   <br>
-  <strong>Figures 2 and 3:</strong> Comparison of All Countries' Energy Consumption (Linear vs. Log Scale)
+  <strong>Figures 9 and 10:</strong> Comparison of All Countries' Energy Consumption (Linear vs. Log Scale)
 </p>
 
 You can also see in the figure below just how closely packed the LEDs are for highly populated nations like China.
@@ -169,13 +169,13 @@ Interestingly, as seen in Figure 12, there are six gore halves which contain zer
 ### Data Sources:
 - [Admin 0 – Countries](https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/) from *Natural Earth* in 2022.
     - The shape file (`ne_10m_admin_0_countries.shp`) is the primary focus, but the `.cpg`, `.dbf`, and `.shx` supporting files are also necessary and are located in the `data/` folder.
-- [Energy Production and Consumption](https://ourworldindata.org/energy-production-consumption) from *Our World in Data* by Hannah Ritchie, Pablo Rosado and Max Roser in 2024. Data is automatically pulled and updated using an API in `data_collector.py`.
+- [Energy Production and Consumption](https://ourworldindata.org/energy-production-consumption) from *Our World in Data* by Hannah Ritchie, Pablo Rosado and Max Roser in 2024. Data is automatically pulled and updated using an API in `data handling/data_collector.py`.
 - [global population density, build volume and surface area](https://human-settlement.emergency.copernicus.eu/download.php)) from *Global Settlement Layer*. 
     - Essential background in Pesaresi, M. et al. (2024) "Advances on the Global Human Settlement Layer by joint assessment of Earth Observation and population survey data", International Journal of Digital Earth, 17(1). 
-    - The raster for the year is downloaded manually, then all data across the years is transformed into a single geopackage `.gpkg` file that is used by running `src/downsample.py` and `src/rasters_to_points.py`
+    - The raster for the year is downloaded manually, then all data across the years is transformed into a single geopackage `.gpkg` file that is used by running `data handling/downsample.py` and `data handling/rasters_to_points.py`
     - This code must be run every time you download the new raster data and want to use it in the code
 - nighttime light rasters *(raster sourced from [Earth Observation Group](https://eogdata.mines.edu/products/dmsp/))*
-    - The raster for the year is downloaded manually, then all data across the years is transformed into a single geopackage `.gpkg` file that is used by running `src/downsample.py` and `src/rasters_to_points.py`
+    - The raster for the year is downloaded manually, then all data across the years is transformed into a single geopackage `.gpkg` file that is used by running `data handling/downsample.py` and `data handling/rasters_to_points.py`
     - This code must be run every time you download the new raster data and want to use it in the code
 
 ### Useful Software:
