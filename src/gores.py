@@ -217,20 +217,18 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     gores_gdf = create_gore_polygons_gdf(gore_boundaries, num_gores=len(gore_boundaries))
 
     # If coloring by LEDs, calculate LED count per country
+    led_counts = None
+    norm = None
     if color_by_leds and all_leds_gdf is not None:
-        import matplotlib.cm as cm
         import matplotlib.colors as mcolors
 
         # Count LEDs per country by spatial join
         world_with_leds = gpd.sjoin(world, all_leds_gdf, how='left', predicate='contains')
         led_counts = world_with_leds.groupby(world_with_leds.index).size()
 
-        # Create color scale
+        # Create normalization for intensity
         max_leds = led_counts.max() if len(led_counts) > 0 else 1
         min_leds = led_counts.min() if len(led_counts) > 0 else 0
-
-        # Create colormap (you can change this - 'viridis', 'plasma', 'YlOrRd', etc.)
-        cmap = cm.get_cmap('YlOrRd')  # Yellow to Red
         norm = mcolors.Normalize(vmin=min_leds, vmax=max_leds)
 
         print(f"LED count range: {min_leds} to {max_leds}")
@@ -247,22 +245,34 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     # Iterate over all countries and plot them
     for country in tqdm(world.itertuples(), total=len(world), desc="Drawing countries", unit="country"):
         country_name = country.ADMIN
+        continent = getattr(country, 'CONTINENT', None)
 
-        # Get color based on mode
-        if color_by_leds and all_leds_gdf is not None:
-            # Color by LED count
+        # Get base color from continent
+        if continent and continent in continent_colors:
+            base_color = continent_colors[continent]
+        else:
+            base_color = '#FF0000'  # Bright red for unmapped countries
+            print(f"Warning: No continent mapping for {country_name} (continent: {continent})")
+
+        # Apply LED intensity if enabled
+        if color_by_leds and led_counts is not None and norm is not None:
             country_idx = country.Index
             num_leds = led_counts.get(country_idx, 0)
-            country_color = cmap(norm(num_leds))
-            print(f"{country_name}: {num_leds} LEDs")
+
+            # Convert hex to RGB
+            import matplotlib.colors as mcolors
+            rgb = mcolors.hex2color(base_color)
+
+            # Scale brightness based on LED count (0.3 to 1.0 range for visibility)
+            intensity = 0.3 + 0.7 * norm(num_leds)
+
+            # Apply intensity to RGB
+            country_color = tuple(c * intensity for c in rgb)
+
+            print(f"{country_name}: {num_leds} LEDs (intensity: {intensity:.2f})")
         else:
-            # Color by continent (original method)
-            continent = getattr(country, 'CONTINENT', None)
-            if continent and continent in continent_colors:
-                country_color = continent_colors[continent]
-            else:
-                country_color = (1.0, 0.0, 0.0)  # Bright red for unmapped countries
-                print(f"Warning: No continent mapping for {country_name} (continent: {continent})")
+            # Use base continent color
+            country_color = base_color
 
         # Get country geometry
         country_geom = country.geometry

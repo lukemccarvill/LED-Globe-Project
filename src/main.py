@@ -17,7 +17,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
-from gores import plot_multiple_gores, draw_countries_on_gores, plot_leds_on_gores, create_gorehalf_coords
+from gores import *
 
 # ~~~ to interface with gui
 @dataclass
