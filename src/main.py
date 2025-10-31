@@ -13,7 +13,7 @@ import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
-#matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
+matplotlib.use("TkAgg")   # Luke needs this for it to run. matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
