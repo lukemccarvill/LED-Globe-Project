@@ -59,22 +59,15 @@ def determine_num_leds(led_data, not_countries, year, tot_leds):
     missing = max(led_data.isna().sum())
     idx = (np.abs(led_data.columns.values[1:-1] - year)).argmin() + 1
     energy_year = led_data.columns.values[idx]
-    if energy_year > 1975:
-        while missing > 10:
-            missing = led_data.isna().sum().loc[energy_year]
-            if missing > 10:
-                energy_year -= 1
-    else:
-        print(f"Error: energy consumption year must be later than 1974")
 
     led_data = led_data[['Entity', energy_year]]
+    led_data[energy_year] = led_data[energy_year].replace(np.nan, 0)
     total_energy = led_data[energy_year].sum()
     led_data['energy_prop'] = led_data[energy_year] / total_energy
     led_data['num_leds'] = led_data['energy_prop'] * tot_leds
 
     def rounding(led_data):
-        return np.round(led_data["num_leds"]).astype(int) if led_data["num_leds"] > 1 else np.floor(
-            led_data["num_leds"]).astype(int)
+        return np.round(led_data["num_leds"]).astype(int) if led_data["num_leds"] > 1 else np.floor(led_data["num_leds"]).astype(int)
 
     led_data["Round"] = led_data.apply(rounding, axis=1)
 
