@@ -29,15 +29,6 @@ def determine_num_leds(led_data, energy_timeseries, year, tot_leds):
     # pick the closest available year to the requested year
     energy_year = min(available_years, key=lambda y: abs(y - year))
 
-    # If there are many missing values for the chosen year, step backwards to an earlier available year
-    missing = led_data[col_map[energy_year]].isna().sum()
-    while missing > 10:
-        idx = available_years.index(energy_year)
-        if idx == 0:
-            break  # no earlier year available
-        energy_year = available_years[idx - 1]
-        missing = led_data[col_map[energy_year]].isna().sum()
-
     # Use the actual column label (string or int) from the pivot table
     col_label = col_map.get(energy_year, energy_year)
     led_data = led_data[['Entity', col_label]]
