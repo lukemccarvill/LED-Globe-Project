@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
 from gores import *
+from config import *
 
 # ~~~ to interface with gui
 @dataclass
@@ -106,8 +107,8 @@ def run(opts: Options):
         # Filter the LED data to include only the top entities and drop NaN values
         #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
         # Allocate LEDs based on population
-        led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
+        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
         # If in manual manipulation mode, the script will exit after creating the GeoJSON
         if opts.manual_manipulation and opts.draw_leds:
