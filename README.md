@@ -110,32 +110,30 @@ This leads us to the final visual result of the project: a 4000 mm wide by 2000 
 
 ### Learnings and Findings
 
-The first interesting finding was just how unequal the world's energy usage is when dividing by political boundaries. For instance, in 2023, China used about 28% of the world's primary energy! If we have ~3500 LEDs, China is allocated almost 1000 of them, as shown in the figure below. *Of course, China is also extremely populous. When it comes to per-capita energy usage, countries like Canada, Norway, and Iceland use far more energy per person than China.*
-
+The first interesting finding was just how unequal the world's energy usage is when dividing by political boundaries. For instance, in 2023, China used about 28% of the world's primary energy! If we have ~3500 LEDs, China is allocated almost 1000 of them, as shown in the figure below. *Of course, China is also extremely populous. When it comes to per-capita energy usage, countries like Canada, Norway, and Iceland use far more energy per person than China.* 
 <p align="center">
-  <img src="images/Graph30Countries.png" alt="Graph of Top 30 Countries by Primary Energy Consumption" width="700"/>
+  <img src="images/figures/energy_consumption_country_bar.png" alt="Graph of Top 10 Countries by Primary Energy Consumption" width="700"/>
   <br>
-  <strong>Figure 8:</strong> Graph of Top 30 Countries by Primary Energy Consumption
+  <strong>Figure 8:</strong> Graph of Top 10 Countries by Primary Energy Consumption
 </p>
 
-This is only the top 30 countries – let's instead include all 212 entities (193 countries plus some dependencies, microstates, etc. included by *Our World in Data*). The dominance in energy consumption seen from the top few nations – particularly China – is incredible.
-
-<p align="center">
-  <img src="images/Graph_PEC_AllCountries_LinearScale.png" alt="Graph of All Countries" width="550"/><br>
-  <img src="images/Graph_PEC_AllCountries_LogScale.png" alt="Graph of All Countries (Log Scale)" width="550"/>
-  <br>
-  <strong>Figures 9 and 10:</strong> Comparison of All Countries' Energy Consumption (Linear vs. Log Scale)
-</p>
-
-You can also see in the figure below just how closely packed the LEDs are for highly populated nations like China.
+The dominance in energy consumption seen from the top few nations – particularly China – is incredible. You can also see in the figure below just how closely packed the LEDs are for highly populated nations like China.
 
 <p align="center">
   <img src="images/East_Asia_Zoomed.png" alt="see fig title" width="900"/>
   <br>
-  <strong>Figure 11:</strong> Zoomed Capture from the SVG of East Asia
+  <strong>Figure 9:</strong> Zoomed Capture from the SVG of East Asia
 </p>
 
  South Korea is another a good example, and demonstrates the space limitations using this methodology – its landmass does not even have enough tiles to fit all of its LEDs. These LEDs are therefore placed dynamically in the ocean surrounding the country, in concentric 'rings' moving outwards from the border of the country until all the LEDs are placed. In 2023, ten nations were in this predicament, such as Singapore, Bahrain, and the UAE.
+
+ Something else that is interesting to look at is energy consumption over time. In the figure below you can see the recent and meteoric rise in energy consumption by China, overtaking the United States a couple years after the turn of the milennium.  
+
+ <p align="center">
+  <img src="images/figures/energy_consumption_country_timeline.png" alt="see fig title" width="900"/>
+  <br>
+  <strong>Figure 11:</strong> A graph of energy usage over time.
+</p>
 
 
 ### Pick-and-Place Coordinates for PCB Manufacturing
