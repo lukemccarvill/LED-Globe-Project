@@ -64,6 +64,8 @@ def determine_num_leds(led_data, not_countries, year, tot_leds):
             missing = led_data.isna().sum().loc[energy_year]
             if missing > 10:
                 energy_year -= 1
+    else:
+        print(f"Error: energy consumption year must be later than 1974")
 
     led_data = led_data[['Entity', energy_year]]
     total_energy = led_data[energy_year].sum()

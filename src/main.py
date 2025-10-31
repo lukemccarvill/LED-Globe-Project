@@ -1,13 +1,18 @@
-# Master script for a repo created by Luke McCarvill in Aug/Sept 2024. Significant ChatGPT usage throughout! This was my first Python project.
-# Support from Dr. Andrew Swingler and Riley Fitzpatrick.
-#
-# This script creates a crisp 4000x2000mm gores-based SVG map with ability to enable the gores, countries, and LED placements.
-#   it can allow you to manually move LED marker placements in QGIS (or similar GIS software) by moving the GeoJSON dot vectors using the manual mode TRUE
-#   it gives you helpful information about which countries need LEDs (due to failed auto placement)
-#   it draws an equator, if you want
-#   it creates a pick-and-place Excel file with sheets for each gore-half to be manufactured. The global csv is likely not useful and just a transient step.
-#   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
-# Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
+"""
+Master script for a repo created by Luke McCarvill in Aug/Sept 2024. Significant ChatGPT usage throughout! This was my first Python project.
+Support from Dr. Andrew Swingler and Riley Fitzpatrick.
+
+This script creates a crisp 4000x2000mm gores-based SVG map with ability to enable the gores, countries, and LED placements.
+It can allow you to manually move LED marker placements in QGIS (or similar GIS software) by moving the GeoJSON dot vectors using the manual mode TRUE
+It gives you helpful information about which countries need LEDs (due to failed auto placement)
+It draws an equator, if you want it creates a pick-and-place Excel file with sheets for each gore-half to be manufactured.
+The global csv is likely not useful and just a transient step. it ensure you've closed any files (QGIS, Excel, etc)
+before getting python to work on them, or else it will likely throw a permissions error
+
+Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be
+editable in main but those values are hardcoded elsewhere
+
+"""
 
 import matplotlib
 matplotlib.use("TkAgg")   # Luke needs this for it to run. matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend
@@ -188,7 +193,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("../data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("./data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
