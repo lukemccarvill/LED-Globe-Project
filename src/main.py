@@ -32,7 +32,12 @@ class Options:
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
     require_backend = False # Set to True if your env doesn't already have a gui backend
+    # Color mode selection
+    COLOR_MODE = 'leds'  # Options: 'continent', 'leds'
 
+    # LED-based color scheme
+    LED_COLORMAP = 'YlOrRd'  # Yellow-Orange-Red (more LEDs = redder)
+    # Other good options: 'viridis', 'plasma', 'inferno', 'hot', 'RdYlGn_r'
 # ~~~
 
 def run(opts: Options):
@@ -78,7 +83,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("../data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
