@@ -193,7 +193,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("./data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("../data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
