@@ -75,13 +75,13 @@ countries_by_continent = {
     ]
 }
 
-# Color palette for continents
+# Refined color palette for continents (cooler tones)
 continent_colors = {
-    'Africa': '#E74C3C',
-    'Asia': '#F39C12',
-    'Europe': '#3498DB',
-    'North America': '#2ECC71',
-    'South America': '#9B59B6',
-    'Oceania': '#1ABC9C',
-    'Antarctica': '#95A5A6'
+    'Africa': '#F39C12',      # Amber (golden, not orange)
+    'Asia': '#8E44AD',        # Deep purple
+    'Europe': '#2980B9',      # Deep blue
+    'North America': '#27AE60', # Forest green
+    'South America': '#C0392B', # Deep burgundy
+    'Oceania': '#16A085',     # Teal
+    'Antarctica': '#BDC3C7'   # Light silver-gray
 }

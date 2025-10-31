@@ -216,6 +216,25 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     print("Creating gore polygons as GeoDataFrame...")
     gores_gdf = create_gore_polygons_gdf(gore_boundaries, num_gores=len(gore_boundaries))
 
+    # If coloring by LEDs, calculate LED count per country
+    if color_by_leds and all_leds_gdf is not None:
+        import matplotlib.cm as cm
+        import matplotlib.colors as mcolors
+
+        # Count LEDs per country by spatial join
+        world_with_leds = gpd.sjoin(world, all_leds_gdf, how='left', predicate='contains')
+        led_counts = world_with_leds.groupby(world_with_leds.index).size()
+
+        # Create color scale
+        max_leds = led_counts.max() if len(led_counts) > 0 else 1
+        min_leds = led_counts.min() if len(led_counts) > 0 else 0
+
+        # Create colormap (you can change this - 'viridis', 'plasma', 'YlOrRd', etc.)
+        cmap = cm.get_cmap('YlOrRd')  # Yellow to Red
+        norm = mcolors.Normalize(vmin=min_leds, vmax=max_leds)
+
+        print(f"LED count range: {min_leds} to {max_leds}")
+
     # Create debug plots if requested
     if debug_plots:
         print("Creating debug plots...")

@@ -36,7 +36,7 @@ class Options:
     COLOR_MODE = 'leds'  # Options: 'continent', 'leds'
 
     # LED-based color scheme
-    LED_COLORMAP = 'YlOrRd'  # Yellow-Orange-Red (more LEDs = redder)
+    LED_COLORMAP = 'red'  # Yellow-Orange-Red (more LEDs = redder)
     # Other good options: 'viridis', 'plasma', 'inferno', 'hot', 'RdYlGn_r'
 # ~~~
 
