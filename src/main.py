@@ -186,10 +186,14 @@ def run(opts: Options):
     output_base = output_svg_filename.replace('.svg', '')
 
     # Rasterized SVG (much smaller)
-    for collection in ax.collections:
-        collection.set_rasterized(True)
-    fig.savefig(output_svg_filename, format="svg", dpi=300, pad_inches=0, transparent=True)
-    print(f"Rasterized SVG saved as {output_svg_filename}")
+    # for collection in ax.collections:
+    #     collection.set_rasterized(True)
+    # fig.savefig(output_svg_filename, format="svg", dpi=300, pad_inches=0, transparent=True)
+    # print(f"Rasterized SVG saved as {output_svg_filename}")
+
+
+    fig.savefig(output_svg_filename, format="svg", dpi=150, pad_inches=0, transparent=True)
+    print(f"File saved as {output_svg_filename}")
 
     plt.show()
     plt.close(fig)
