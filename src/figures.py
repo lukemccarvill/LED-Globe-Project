@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import pandas as pd
-import matplotlib.pyplot as plt
-from config import not_countries, countries_by_continent
-import os
-from matplotlib.patches import Patch
-import numpy as np
-=======
 """
 
 Creates bar charts and line charts for global energy consumption analysis, showing both
@@ -25,11 +17,12 @@ Outputs:
 
 """
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 from matplotlib.patches import Patch
->>>>>>> origin/master
+
+from config import *
 
 # ============================================================
 # CONFIGURATION
@@ -52,8 +45,6 @@ continent_colors = {
     'Oceania': '#1ABC9C', 'Antarctica': '#95A5A6'
 }
 
-<<<<<<< HEAD
-=======
 not_countries = ['Africa', 'Africa (EI)', 'Africa (EIA)', 'Antarctica', 'Asia', 'Asia Pacific (EI)',
                  'Asia and Oceania (EIA)', 'Australia and New Zealand (EIA)', 'CIS (EI)', 'Central America (EI)',
                  'Central and South America (EIA)', 'Eastern Africa (EI)', 'Eastern Europe and Eurasia (EIA)',
@@ -130,11 +121,8 @@ countries_by_continent = {
         'Falkland Islands'
     ]
 }
->>>>>>> origin/master
 
-# ============================================================
 # HELPER FUNCTIONS
-# ============================================================
 
 def create_country_to_continent_map(countries_by_continent):
     """Create reverse mapping: country -> continent"""

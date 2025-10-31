@@ -8,36 +8,18 @@
 #   it creates a pick-and-place Excel file with sheets for each gore-half to be manufactured. The global csv is likely not useful and just a transient step.
 #   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
 # Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
-<<<<<<< HEAD
-
-### We recommend running gui.py, which creates a GUI pop-up to interface with rather than interacting with this script.
-=======
->>>>>>> origin/master
 
 import os
 import geopandas as gpd
 import pandas as pd
 import matplotlib
-<<<<<<< HEAD
-matplotlib.use("TkAgg") # LUKE NEEDS THIS ON HIS COMPUTER FOR SOME REASON # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
-import matplotlib.pyplot as plt
-from dataclasses import dataclass
-from led_allocator import determine_num_leds, allocate_leds
-from country_mapper import draw_countries_on_gores
-from gore_drawer import plot_multiple_gores
-from led_plotter import plot_leds_on_gores
-from per_gorehalf_coords import create_gorehalf_coords
-
-# ~~~ to interface with gui. You can just 'run' this main.py file, but it will use these defaults below. I instead recommend running the gui.py script.
-=======
 #matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
-from gores import plot_multiple_gores, draw_countries_on_gores, plot_leds_on_gores, create_gorehalf_coords
+from gores import *
 
 # ~~~ to interface with gui
->>>>>>> origin/master
 @dataclass
 class Options:
     draw_gores: bool = True  # set to False if you don't want gore outlines
@@ -50,12 +32,16 @@ class Options:
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
     require_backend = False # Set to True if your env doesn't already have a gui backend
-<<<<<<< HEAD
+
     raster_choice: str = "population"   # one of: "population", "nightlights", "ghs_volume", "ghs_surface"
     raster_year: int = 2025 # all options except nightlights have options 1975-2025 except nightlights which is fixed to 2024
-=======
->>>>>>> origin/master
 
+    # Color mode selection
+    COLOR_MODE = 'leds'  # Options: 'continent', 'leds'
+
+    # LED-based color scheme
+    LED_COLORMAP = 'red'  # Yellow-Orange-Red (more LEDs = redder)
+    # Other good options: 'viridis', 'plasma', 'inferno', 'hot', 'RdYlGn_r'
 # ~~~
 
 def run(opts: Options):
@@ -75,7 +61,7 @@ def run(opts: Options):
 
     # paths for data, transients, and output files
     shapefile_path = os.path.join(data_dir, 'ne_10m_admin_0_countries.shp') # may need other files rather than just shp?
-<<<<<<< HEAD
+
     # raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
     # raster_dir = os.path.join(project_root, 'nightlight_vs_population') # I DONT THINK WE NEED THE NIGHTLIGHT VS POP FOLDER AT ALL ANYMORE ~~~
 
@@ -181,7 +167,6 @@ def run(opts: Options):
         led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
         all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
-=======
     #raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
     energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg")
     #country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
@@ -208,7 +193,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("./data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
@@ -234,7 +219,6 @@ def run(opts: Options):
         led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
         all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
->>>>>>> origin/master
         # If in manual manipulation mode, the script will exit after creating the GeoJSON
         if opts.manual_manipulation and opts.draw_leds:
             print("Manual manipulation mode is enabled. Please edit the GeoJSON file and rerun the script.")
@@ -282,13 +266,10 @@ def run(opts: Options):
 
 if __name__ == "__main__":
     # click run on main.py to run with defaults (no gui)
-<<<<<<< HEAD
     run(Options())
-=======
-    run(Options())
+
 
 #def save_plot_as_svg(fig, filename="world_on_gores.svg"):
     # Save the figure to an SVG file
     #print("Saving SVG file...")
     #fig.savefig(filename, format='svg')
->>>>>>> origin/master

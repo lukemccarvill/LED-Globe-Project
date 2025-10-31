@@ -23,7 +23,7 @@ countries_by_continent = {
         'Reunion', 'Rwanda', 'Saint Helena', 'Sao Tome and Principe', 'Senegal',
         'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan',
         'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Western Sahara',
-        'Zambia', 'Zimbabwe'
+        'Zambia', 'Zimbabwe', 'Seychelles', 'Saint Helena', 'Mauritius',
     ],
     'Asia': [
         'Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan',
@@ -34,7 +34,7 @@ countries_by_continent = {
         'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar',
         'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria',
         'Taiwan', 'Tajikistan', 'Thailand', 'Turkey', 'Turkmenistan',
-        'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen'
+        'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen',  'British Indian Ocean Territory'
     ],
     'Europe': [
         'Albania', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina',
@@ -56,12 +56,12 @@ countries_by_continent = {
         'Puerto Rico', 'Saint Kitts and Nevis', 'Saint Lucia',
         'Saint Pierre and Miquelon', 'Saint Vincent and the Grenadines',
         'Trinidad and Tobago', 'Turks and Caicos Islands', 'United States',
-        'United States Virgin Islands'
+        'United States Virgin Islands', 'Clipperton Island'
     ],
     'South America': [
         'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador',
         'French Guiana', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay',
-        'Venezuela'
+        'Venezuela', 'South Georgia and the Islands'
     ],
     'Oceania': [
         'American Samoa', 'Australia', 'Cook Islands', 'Fiji',
@@ -73,4 +73,15 @@ countries_by_continent = {
     'Antarctica': [
         'Falkland Islands'
     ]
+}
+
+# Refined color palette for continents (cooler tones)
+continent_colors = {
+    'Africa': '#F39C12',      # Amber (golden, not orange)
+    'Asia': '#8E44AD',        # Deep purple
+    'Europe': '#2980B9',      # Deep blue
+    'North America': '#27AE60', # Forest green
+    'South America': '#C0392B', # Deep burgundy
+    'Oceania': '#16A085',     # Teal
+    'Antarctica': '#BDC3C7'   # Light silver-gray
 }

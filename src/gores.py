@@ -1,3 +1,11 @@
+"""
+Gore-based map projection and rendering utilities.
+
+This module handles the creation of sinusoidal gore projections for displaying global geographic data on a 4000x2000mm
+physical map. Includes functions for rendering countries, placing LEDs, and generating manufacturing coordinates.
+
+"""
+
 import pandas as pd
 import geopandas as gpd
 import random
@@ -9,8 +17,12 @@ import matplotlib.pyplot as plt
 import csv
 from matplotlib.patches import Rectangle
 
+from config import countries_by_continent, continent_colors
+
 random.seed(42)  # to get consistent green countries
 
+
+# Create and render multiple gore projections for the globe map
 def plot_multiple_gores(num_gores=12, fig=None, ax=None, draw_outlines=True, draw_equator=False, width=4, height=2):
     # Set exact canvas size 4000mm x 2000mm
     if fig is None or ax is None:
@@ -55,201 +67,7 @@ def plot_multiple_gores(num_gores=12, fig=None, ax=None, draw_outlines=True, dra
     return fig, ax, gore_boundaries
 
 
-def translate_coords(x, y, gore_section):
-    # Define width and height of each gore half
-    gore_width = 4000 / 12  # mm # THIS SHOULD BE CHANGED TO TAKE THE ACTUAL VARIABLE FROM MAIN IN THE FUTURE
-    gore_height = 1000  # mm
-
-    # Get the gore number and hemisphere from the section
-    gore_num = int(gore_section[:-1])  # Get gore number (1-12)
-    hemisphere = gore_section[-1]  # Get hemisphere (N/S)
-
-    # Translate x-coordinates: Shift each gore section to its own 0 to 333.33 range
-    x_translated = x - ((gore_num - 1) * 333.33 - 2000)
-
-    # Translate y-coordinates: Shift northern and southern hemisphere
-    if hemisphere == "N":
-        y_translated = y  # Northern hemisphere coordinates stay in the range 0-1000
-    else:
-        y_translated = y + 1000  # Southern hemisphere is below, so shift by +1000
-
-    return x_translated, y_translated
-
-
-# debug
-def plot_debug_geopackages(world, gores_gdf, output_path='../outputs/debug_geopackages.png'):
-    """Plot the countries and gore boxes for debugging"""
-    fig, axes = plt.subplots(1, 3, figsize=(24, 8))
-
-    # Plot 1: Countries only
-    world.plot(ax=axes[0], color='lightblue', edgecolor='black', linewidth=0.5)
-    axes[0].set_title(f'Countries ({len(world)} features)', fontsize=14)
-    axes[0].set_xlabel('Longitude')
-    axes[0].set_ylabel('Latitude')
-    axes[0].grid(True, alpha=0.3)
-
-    # Plot 2: Gore boxes only
-    gores_gdf.plot(ax=axes[1], color='lightgreen', edgecolor='red', linewidth=2, alpha=0.3)
-    axes[1].set_title(f'Gore Boxes ({len(gores_gdf)} gores)', fontsize=14)
-    axes[1].set_xlabel('Longitude')
-    axes[1].set_ylabel('Latitude')
-    axes[1].grid(True, alpha=0.3)
-
-    # Add gore labels
-    for idx, gore in gores_gdf.iterrows():
-        centroid = gore.geometry.centroid
-        axes[1].text(centroid.x, centroid.y, str(idx),
-                     ha='center', va='center', fontsize=10, fontweight='bold')
-
-    # Plot 3: Countries + Gore boxes overlay
-    world.plot(ax=axes[2], color='lightblue', edgecolor='black', linewidth=0.5)
-    gores_gdf.plot(ax=axes[2], facecolor='none', edgecolor='red', linewidth=2)
-    axes[2].set_title('Countries with Gore Box Overlay', fontsize=14)
-    axes[2].set_xlabel('Longitude')
-    axes[2].set_ylabel('Latitude')
-    axes[2].grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    print(f"Debug plot saved to {output_path}")
-    plt.show()
-
-
-# debug
-def plot_clipped_example(world, gores_gdf, country_name='United States of America',
-                         output_path='../outputs/debug_clipped_example.png'):
-    """Plot an example of how a specific country gets clipped by gores"""
-    # Find the country
-    country = world[world['ADMIN'] == country_name].iloc[0]
-    country_geom = country.geometry
-
-    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-    axes = axes.flatten()
-
-    # Plot original country
-    gpd.GeoSeries([country_geom]).plot(ax=axes[0], color='blue', alpha=0.5)
-    axes[0].set_title(f'Original: {country_name}', fontsize=12)
-    axes[0].grid(True, alpha=0.3)
-
-    # Get relevant gores
-    lon_min, lat_min, lon_max, lat_max = country_geom.bounds
-    gore_width = 360 / len(gores_gdf)
-    start_gore = max(0, int((lon_min + 180) / gore_width))
-    end_gore = min(len(gores_gdf) - 1, int((lon_max + 180) / gore_width))
-
-    # Plot each clipped piece
-    plot_idx = 1
-    for gore_idx in range(start_gore, min(end_gore + 1, start_gore + 5)):  # Limit to 5 gores
-        gore_geom = gores_gdf.loc[gore_idx, 'geometry']
-        clipped = country_geom.intersection(gore_geom)
-
-        if not clipped.is_empty:
-            # Plot gore box
-            gpd.GeoSeries([gore_geom]).plot(ax=axes[plot_idx], facecolor='none',
-                                            edgecolor='red', linewidth=2)
-            # Plot original country outline
-            gpd.GeoSeries([country_geom]).plot(ax=axes[plot_idx], facecolor='none',
-                                               edgecolor='blue', linewidth=1, alpha=0.5)
-            # Plot clipped result
-            gpd.GeoSeries([clipped]).plot(ax=axes[plot_idx], color='green', alpha=0.7)
-            axes[plot_idx].set_title(f'Gore {gore_idx}: Clipped', fontsize=12)
-            axes[plot_idx].grid(True, alpha=0.3)
-            plot_idx += 1
-
-            if plot_idx >= len(axes):
-                break
-
-    # Hide unused subplots
-    for idx in range(plot_idx, len(axes)):
-        axes[idx].axis('off')
-
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    print(f"Clipped example plot saved to {output_path}")
-    plt.show()
-
-
-def create_gorehalf_coords(transient_dir=None):
-    """
-    Create gore half coordinates for manufacturing.
-
-    Parameters:
-    -----------
-    transient_dir : str, optional
-        Path to the transients directory. If not provided, uses relative path.
-    """
-
-    # Construct the CSV input path
-    if transient_dir is None:
-        # Fallback to relative path
-        csv_input_path = '../transients/led_coordinates_global.csv'
-    else:
-        csv_input_path = os.path.join(transient_dir, 'led_coordinates_global.csv')
-
-    # Get the root directory of the project (assumes script is run from 'src')
-    project_root = os.path.dirname(os.path.dirname(__file__))
-    output_dir = os.path.join(project_root, 'outputs')
-
-    # Ensure the 'outputs' directory exists
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Define the path for the xlsx output
-    xlsx_output_path = os.path.join(output_dir, "gorehalf_coordinates_with_sheets.xlsx")
-
-    # Read the CSV file generated from the previous script
-    print(f"Reading CSV from: {csv_input_path}")
-    df = pd.read_csv(csv_input_path)
-
-    # Translate the coordinates and store them in new columns
-    df[['Mid X (mm)', 'Mid Y (mm)']] = df.apply(
-        lambda row: translate_coords(row['X (mm)'], row['Y (mm)'], row['Gore Section']), axis=1, result_type='expand')
-
-    # Reorder the data to follow the gore half order: 1N, 1S, 2N, 2S, ..., 12N, 12S
-    df['Sort_Key'] = df['Gore Section'].map(lambda x: (int(x[:-1]), x[-1]))
-    df = df.sort_values('Sort_Key')
-
-    # Drop the Sort_Key column since it's no longer needed
-    df.drop(columns=['Sort_Key'], inplace=True)
-
-    # Create summary of totals per gore section
-    gore_sections = [f"{i}{h}" for i in range(1, 13) for h in ['N', 'S']]
-    summary_data = [(section, len(df[df['Gore Section'] == section])) for section in gore_sections]
-    summary_df = pd.DataFrame(summary_data, columns=['Gore Section', 'Total LEDs'])
-
-    # Create a new Excel writer object
-    with pd.ExcelWriter(xlsx_output_path, engine='openpyxl') as writer:
-        # Write the summary starting in row 1
-        summary_df.to_excel(writer, sheet_name='Master', startrow=0, startcol=5, index=False)
-
-        # Write the full data starting immediately after the summary, at row 1
-        df[['Mid X (mm)', 'Mid Y (mm)', 'Gore Section']].to_excel(writer, sheet_name='Master', startrow=0, index=False)
-
-        # Loop through each gore section, create individual sheets for each
-        for gore_section in gore_sections:
-            section_df = df[df['Gore Section'] == gore_section]
-            if not section_df.empty:
-                section_df[['Mid X (mm)', 'Mid Y (mm)']].to_excel(writer, sheet_name=gore_section, index=False)
-
-    print(f"Translated coordinates and sheets saved to {xlsx_output_path}.")
-
-
-def interpolate_between_points(y, x_left, x_right, relative_lat):
-    num_points = len(y)
-    index_below = int(relative_lat * (num_points - 1))
-    index_above = min(index_below + 1, num_points - 1)
-    fraction = (relative_lat * (num_points - 1)) - index_below
-
-    # Interpolating y position
-    y_pos = y[index_below] + fraction * (y[index_above] - y[index_below])
-
-    # Interpolating x positions
-    x_left_pos = x_left[index_below] + fraction * (x_left[index_above] - x_left[index_below])
-    x_right_pos = x_right[index_below] + fraction * (x_right[index_above] - x_right[index_below])
-
-    return y_pos, x_left_pos, x_right_pos
-
-
+# Create GeoDataFrame of gore polygon boundaries in lon/lat space (EPSG:4326)
 def create_gore_polygons_gdf(gore_boundaries, num_gores=12):
     """Create a GeoDataFrame of gore polygons in lon/lat space (EPSG:4326)"""
     gore_width = 360 / num_gores
@@ -276,6 +94,7 @@ def create_gore_polygons_gdf(gore_boundaries, num_gores=12):
     return gdf
 
 
+# Transform a polygon from lon/lat coordinates to gore projection space
 def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     """Map a polygon from lon/lat to gore coordinate space with proper interpolation based on y_gore values"""
     x, y = polygon.exterior.xy
@@ -347,8 +166,26 @@ def map_polygon_to_gore(gore_boundaries, gore_index, polygon):
     return gore_x, gore_y
 
 
+# Interpolate x and y positions along gore boundaries for a given latitude
+def interpolate_between_points(y, x_left, x_right, relative_lat):
+    num_points = len(y)
+    index_below = int(relative_lat * (num_points - 1))
+    index_above = min(index_below + 1, num_points - 1)
+    fraction = (relative_lat * (num_points - 1)) - index_below
+
+    # Interpolating y position
+    y_pos = y[index_below] + fraction * (y[index_above] - y[index_below])
+
+    # Interpolating x positions
+    x_left_pos = x_left[index_below] + fraction * (x_left[index_above] - x_left[index_below])
+    x_right_pos = x_right[index_below] + fraction * (x_right[index_above] - x_right[index_below])
+
+    return y_pos, x_left_pos, x_right_pos
+
+
+# Render country polygons mapped onto gore projections
 def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_countries=True,
-                            use_simplified=True, debug_plots=False):
+                            use_simplified=True, debug_plots=False, all_leds_gdf=None, color_by_leds=False):
     if not draw_countries:
         return  # If country drawing is disabled, exit early
 
@@ -379,6 +216,23 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     print("Creating gore polygons as GeoDataFrame...")
     gores_gdf = create_gore_polygons_gdf(gore_boundaries, num_gores=len(gore_boundaries))
 
+    # If coloring by LEDs, calculate LED count per country
+    led_counts = None
+    norm = None
+    if color_by_leds and all_leds_gdf is not None:
+        import matplotlib.colors as mcolors
+
+        # Count LEDs per country by spatial join
+        world_with_leds = gpd.sjoin(world, all_leds_gdf, how='left', predicate='contains')
+        led_counts = world_with_leds.groupby(world_with_leds.index).size()
+
+        # Create normalization for intensity
+        max_leds = led_counts.max() if len(led_counts) > 0 else 1
+        min_leds = led_counts.min() if len(led_counts) > 0 else 0
+        norm = mcolors.Normalize(vmin=min_leds, vmax=max_leds)
+
+        print(f"LED count range: {min_leds} to {max_leds}")
+
     # Create debug plots if requested
     if debug_plots:
         print("Creating debug plots...")
@@ -391,9 +245,34 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     # Iterate over all countries and plot them
     for country in tqdm(world.itertuples(), total=len(world), desc="Drawing countries", unit="country"):
         country_name = country.ADMIN
+        continent = getattr(country, 'CONTINENT', None)
 
-        # Generate a random shade of green
-        random_green = (random.uniform(0, 0.5), random.uniform(0.5, 1), random.uniform(0, 0.5))
+        # Get base color from continent
+        if continent and continent in continent_colors:
+            base_color = continent_colors[continent]
+        else:
+            base_color = '#FF0000'  # Bright red for unmapped countries
+            print(f"Warning: No continent mapping for {country_name} (continent: {continent})")
+
+        # Apply LED intensity if enabled
+        if color_by_leds and led_counts is not None and norm is not None:
+            country_idx = country.Index
+            num_leds = led_counts.get(country_idx, 0)
+
+            # Convert hex to RGB
+            import matplotlib.colors as mcolors
+            rgb = mcolors.hex2color(base_color)
+
+            # Scale brightness based on LED count (0.3 to 1.0 range for visibility)
+            intensity = 0.3 + 0.7 * norm(num_leds)
+
+            # Apply intensity to RGB
+            country_color = tuple(c * intensity for c in rgb)
+
+            print(f"{country_name}: {num_leds} LEDs (intensity: {intensity:.2f})")
+        else:
+            # Use base continent color
+            country_color = base_color
 
         # Get country geometry
         country_geom = country.geometry
@@ -458,7 +337,7 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
                             continue
 
                         # Plot the polygon
-                        ax.fill(gore_x, gore_y, color=random_green, linewidth=0, edgecolor='none')
+                        ax.fill(gore_x, gore_y, color=country_color, linewidth=0, edgecolor='none')
 
                     except Exception as e:
                         # Skip problematic polygons
@@ -471,6 +350,7 @@ def draw_countries_on_gores(world_shapefile, fig, ax, gore_boundaries, draw_coun
     print("Countries have been mapped onto the gores.")
 
 
+# Map arrays of lon/lat coordinates (e.g., LED positions) to gore space
 def map_raster_to_gore(gore_boundaries, lon, lat):
     gore_x, gore_y = [], []
     for lon_point, lat_point in zip(lon, lat):
@@ -491,6 +371,7 @@ def map_raster_to_gore(gore_boundaries, lon, lat):
     return gore_x, gore_y
 
 
+# Render LED positions as rectangles on gore map and export coordinates to CSV
 def plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=0.002, led_height=0.0035, scale_factor=1, plot_leds=True):
     # Define the path to the 'transients' folder in the repository
     project_root = os.path.dirname(os.path.dirname(__file__))  # Assuming script is run from 'src'
@@ -526,7 +407,7 @@ def plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=0.002, led_h
 
         # Plot the LED data as rectangles on the gores
         for lon, lat, x, y in zip(led_lon, led_lat, gore_x, gore_y):
-            rect = Rectangle((x - rect_width / 2, y - rect_height / 2), rect_width, rect_height, facecolor='red', edgecolor='none')
+            rect = Rectangle((x - rect_width / 2, y - rect_height / 2), rect_width, rect_height, facecolor='#FFBF00', edgecolor='none')
             ax.add_patch(rect)
 
             # Determine the gore section and hemisphere
@@ -539,3 +420,184 @@ def plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=0.002, led_h
 
     print(f"CSV saved at {csv_output_path}")
     print("LED rectangles plotted on the gores.")
+
+
+# Convert global gore coordinates to individual gore-half manufacturing coordinates
+def translate_coords(x, y, gore_section):
+    # Define width and height of each gore half
+    gore_width = 4000 / 12  # mm # THIS SHOULD BE CHANGED TO TAKE THE ACTUAL VARIABLE FROM MAIN IN THE FUTURE
+    gore_height = 1000  # mm
+
+    # Get the gore number and hemisphere from the section
+    gore_num = int(gore_section[:-1])  # Get gore number (1-12)
+    hemisphere = gore_section[-1]  # Get hemisphere (N/S)
+
+    # Translate x-coordinates: Shift each gore section to its own 0 to 333.33 range
+    x_translated = x - ((gore_num - 1) * 333.33 - 2000)
+
+    # Translate y-coordinates: Shift northern and southern hemisphere
+    if hemisphere == "N":
+        y_translated = y  # Northern hemisphere coordinates stay in the range 0-1000
+    else:
+        y_translated = y + 1000  # Southern hemisphere is below, so shift by +1000
+
+    return x_translated, y_translated
+
+
+# Generate Excel pick-and-place file with translated coordinates for each gore half
+def create_gorehalf_coords(transient_dir=None):
+    """
+    Create gore half coordinates for manufacturing.
+
+    Parameters:
+    -----------
+    transient_dir : str, optional
+        Path to the transients directory. If not provided, uses relative path.
+    """
+
+    # Construct the CSV input path
+    if transient_dir is None:
+        # Fallback to relative path
+        csv_input_path = '../transients/led_coordinates_global.csv'
+    else:
+        csv_input_path = os.path.join(transient_dir, 'led_coordinates_global.csv')
+
+    # Get the root directory of the project (assumes script is run from 'src')
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    output_dir = os.path.join(project_root, 'outputs')
+
+    # Ensure the 'outputs' directory exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Define the path for the xlsx output
+    xlsx_output_path = os.path.join(output_dir, "gorehalf_coordinates_with_sheets.xlsx")
+
+    # Read the CSV file generated from the previous script
+    print(f"Reading CSV from: {csv_input_path}")
+    df = pd.read_csv(csv_input_path)
+
+    # Translate the coordinates and store them in new columns
+    df[['Mid X (mm)', 'Mid Y (mm)']] = df.apply(
+        lambda row: translate_coords(row['X (mm)'], row['Y (mm)'], row['Gore Section']), axis=1, result_type='expand')
+
+    # Reorder the data to follow the gore half order: 1N, 1S, 2N, 2S, ..., 12N, 12S
+    df['Sort_Key'] = df['Gore Section'].map(lambda x: (int(x[:-1]), x[-1]))
+    df = df.sort_values('Sort_Key')
+
+    # Drop the Sort_Key column since it's no longer needed
+    df.drop(columns=['Sort_Key'], inplace=True)
+
+    # Create summary of totals per gore section
+    gore_sections = [f"{i}{h}" for i in range(1, 13) for h in ['N', 'S']]
+    summary_data = [(section, len(df[df['Gore Section'] == section])) for section in gore_sections]
+    summary_df = pd.DataFrame(summary_data, columns=['Gore Section', 'Total LEDs'])
+
+    # Create a new Excel writer object
+    with pd.ExcelWriter(xlsx_output_path, engine='openpyxl') as writer:
+        # Write the summary starting in row 1
+        summary_df.to_excel(writer, sheet_name='Master', startrow=0, startcol=5, index=False)
+
+        # Write the full data starting immediately after the summary, at row 1
+        df[['Mid X (mm)', 'Mid Y (mm)', 'Gore Section']].to_excel(writer, sheet_name='Master', startrow=0, index=False)
+
+        # Loop through each gore section, create individual sheets for each
+        for gore_section in gore_sections:
+            section_df = df[df['Gore Section'] == gore_section]
+            if not section_df.empty:
+                section_df[['Mid X (mm)', 'Mid Y (mm)']].to_excel(writer, sheet_name=gore_section, index=False)
+
+    print(f"Translated coordinates and sheets saved to {xlsx_output_path}.")
+
+
+# Create diagnostic visualization showing countries, gore boxes, and their overlay
+def plot_debug_geopackages(world, gores_gdf, output_path='../outputs/debug_geopackages.png'):
+    """Plot the countries and gore boxes for debugging"""
+    fig, axes = plt.subplots(1, 3, figsize=(24, 8))
+
+    # Plot 1: Countries only
+    world.plot(ax=axes[0], color='lightblue', edgecolor='black', linewidth=0.5)
+    axes[0].set_title(f'Countries ({len(world)} features)', fontsize=14)
+    axes[0].set_xlabel('Longitude')
+    axes[0].set_ylabel('Latitude')
+    axes[0].grid(True, alpha=0.3)
+
+    # Plot 2: Gore boxes only
+    gores_gdf.plot(ax=axes[1], color='lightgreen', edgecolor='red', linewidth=2, alpha=0.3)
+    axes[1].set_title(f'Gore Boxes ({len(gores_gdf)} gores)', fontsize=14)
+    axes[1].set_xlabel('Longitude')
+    axes[1].set_ylabel('Latitude')
+    axes[1].grid(True, alpha=0.3)
+
+    # Add gore labels
+    for idx, gore in gores_gdf.iterrows():
+        centroid = gore.geometry.centroid
+        axes[1].text(centroid.x, centroid.y, str(idx),
+                     ha='center', va='center', fontsize=10, fontweight='bold')
+
+    # Plot 3: Countries + Gore boxes overlay
+    world.plot(ax=axes[2], color='lightblue', edgecolor='black', linewidth=0.5)
+    gores_gdf.plot(ax=axes[2], facecolor='none', edgecolor='red', linewidth=2)
+    axes[2].set_title('Countries with Gore Box Overlay', fontsize=14)
+    axes[2].set_xlabel('Longitude')
+    axes[2].set_ylabel('Latitude')
+    axes[2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"Debug plot saved to {output_path}")
+    plt.show()
+
+
+# Visualize how a specific country gets clipped and mapped across gore sections.
+def plot_clipped_example(world, gores_gdf, country_name='United States of America',
+                         output_path='../outputs/debug_clipped_example.png'):
+    """Plot an example of how a specific country gets clipped by gores"""
+    # Find the country
+    country = world[world['ADMIN'] == country_name].iloc[0]
+    country_geom = country.geometry
+
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    axes = axes.flatten()
+
+    # Plot original country
+    gpd.GeoSeries([country_geom]).plot(ax=axes[0], color='blue', alpha=0.5)
+    axes[0].set_title(f'Original: {country_name}', fontsize=12)
+    axes[0].grid(True, alpha=0.3)
+
+    # Get relevant gores
+    lon_min, lat_min, lon_max, lat_max = country_geom.bounds
+    gore_width = 360 / len(gores_gdf)
+    start_gore = max(0, int((lon_min + 180) / gore_width))
+    end_gore = min(len(gores_gdf) - 1, int((lon_max + 180) / gore_width))
+
+    # Plot each clipped piece
+    plot_idx = 1
+    for gore_idx in range(start_gore, min(end_gore + 1, start_gore + 5)):  # Limit to 5 gores
+        gore_geom = gores_gdf.loc[gore_idx, 'geometry']
+        clipped = country_geom.intersection(gore_geom)
+
+        if not clipped.is_empty:
+            # Plot gore box
+            gpd.GeoSeries([gore_geom]).plot(ax=axes[plot_idx], facecolor='none',
+                                            edgecolor='red', linewidth=2)
+            # Plot original country outline
+            gpd.GeoSeries([country_geom]).plot(ax=axes[plot_idx], facecolor='none',
+                                               edgecolor='blue', linewidth=1, alpha=0.5)
+            # Plot clipped result
+            gpd.GeoSeries([clipped]).plot(ax=axes[plot_idx], color='green', alpha=0.7)
+            axes[plot_idx].set_title(f'Gore {gore_idx}: Clipped', fontsize=12)
+            axes[plot_idx].grid(True, alpha=0.3)
+            plot_idx += 1
+
+            if plot_idx >= len(axes):
+                break
+
+    # Hide unused subplots
+    for idx in range(plot_idx, len(axes)):
+        axes[idx].axis('off')
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"Clipped example plot saved to {output_path}")
+    plt.show()
