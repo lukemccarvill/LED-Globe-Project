@@ -159,8 +159,8 @@ def run(opts: Options):
         # Filter the LED data to include only the top entities and drop NaN values
         #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
         # Allocate LEDs based on population
-        led_data = determine_num_leds(led_data, energy_timeseries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
+        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
     #raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
     energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg")
@@ -188,7 +188,7 @@ def run(opts: Options):
     #world = gpd.read_file(shapefile_path)
     #led_data = pd.read_excel(country_energy_path)
     # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv("../data/API/global_energy_consumption.csv") # new way of allocating leds
+    led_data = pd.read_csv("./data/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
