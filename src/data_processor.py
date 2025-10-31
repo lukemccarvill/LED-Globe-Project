@@ -414,3 +414,266 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+import pandas as pd
+import geopandas as gpd
+import rasterio
+import numpy as np
+
+
+def load_data(country_energy_path, shapefile_path, raster_path):
+    # Load LED distribution data from CSV
+    led_data = pd.read_excel(country_energy_path)
+
+    # Load world countries shapefile
+    world = gpd.read_file(shapefile_path)
+
+    # Load the population density raster
+    with rasterio.open(raster_path) as src:
+        raster_data = src.read(1)
+        raster_transform = src.transform
+        raster_crs = src.crs
+        raster_nodata = src.nodata
+        if raster_nodata is not None:
+            raster_data[raster_data == raster_nodata] = np.nan
+
+    # Generate a meshgrid of the coordinates
+    height, width = raster_data.shape
+    cols, rows = np.meshgrid(np.arange(width), np.arange(height))
+    lon, lat = rasterio.transform.xy(raster_transform, rows, cols)
+    lon_flat = np.array(lon).flatten()
+    lat_flat = np.array(lat).flatten()
+    raster_flat = raster_data.flatten()
+
+    # Remove NaN values
+    valid_mask = ~np.isnan(raster_flat)
+    raster_flat = raster_flat[valid_mask]
+    lon_flat = lon_flat[valid_mask]
+    lat_flat = lat_flat[valid_mask]
+
+    # Convert negative values to zero
+    raster_flat[raster_flat < 0] = 0
+
+    return led_data, world, raster_flat, lon_flat, lat_flat, raster_transform, raster_crs
+
+
+import requests
+import json
+import pandas as pd
+import os
+import geopandas as gpd
+from shapely.geometry import shape
+
+"""
+
+   Files to import:                       Source:                       Saves to file:
+
+1. global energy consumption              ourworldindata.org            global_energy_consumption
+2. per capita energy consumption          ourworldindata.org            per_capita_energy_consumption
+3. world administrative boundaries        opendatasoft.com (WFP, UN)    countries                  
+4. 
+
+"""
+
+# Create the directory structure if it doesn't exist
+# Use '../data/API' to go up from src to parent, then into data/API
+os.makedirs('../data/API', exist_ok=True)
+print("Directory '../data/API' created or already exists")
+
+## --------------------------------------------- GLOBAL ENERGY CONSUMPTION ---------------------------------------------
+# region
+
+# Fetch the data
+df = pd.read_csv(
+    "https://ourworldindata.org/grapher/primary-energy-cons.csv?v=1&csvType=full&useColumnShortNames=true",
+    storage_options={'User-Agent': 'Our World In Data data fetch/1.0'}
+)
+
+print("Data columns:", df.columns.tolist())
+print(f"Data shape: {df.shape}")
+
+# Save the DataFrame to CSV
+df.to_csv('../data/API/global_energy_consumption.csv', index=False)
+print("Data saved to: ../data/API/global_energy_consumption.csv")
+
+# Fetch the metadata
+metadata = requests.get(
+    "https://ourworldindata.org/grapher/primary-energy-cons.metadata.json?v=1&csvType=full&useColumnShortNames=true"
+).json()
+
+# Save the metadata to JSON
+with open('../data/API/global_energy_consumption_metadata.json', 'w') as f:
+    json.dump(metadata, f, indent=2)
+print("Metadata saved to: ../data/API/global_energy_consumption_metadata.json\n")
+
+# endregion
+
+## ------------------------------------------- PER CAPITA ENERGY CONSUMPTION -------------------------------------------
+# region
+
+# Fetch the data
+df = pd.read_csv(
+    "https://ourworldindata.org/grapher/per-capita-energy-use.csv?v=1&csvType=full&useColumnShortNames=true",
+    storage_options={'User-Agent': 'Our World In Data data fetch/1.0'}
+)
+
+print("Data columns:", df.columns.tolist())
+print(f"Data shape: {df.shape}")
+
+# Save the DataFrame to CSV
+df.to_csv('../data/API/per_capita_energy_consumption.csv', index=False)
+print("Data saved to: ../data/API/per_capita_energy_consumption.csv")
+
+# Fetch the metadata
+metadata = requests.get(
+    "https://ourworldindata.org/grapher/per-capita-energy-use.metadata.json?v=1&csvType=full&useColumnShortNames=true"
+).json()
+
+# Save the metadata to JSON
+with open('../data/API/per_capita_energy_consumption_metadata.json', 'w') as f:
+    json.dump(metadata, f, indent=2)
+print("Metadata saved to: ../data/API/per_capita_energy_consumption_metadata.json")
+
+# endregion
+
+## ------------------------------------------ WORLD ADMINISTRATIVE BOUNDARIES ------------------------------------------
+# region
+
+response = requests.get(
+    "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/world-administrative-boundaries-countries/records"
+)
+
+data = response.json()
+records = data['results']
+
+# Extract geometry and properties from the API response
+features = []
+for record in records:
+    # The geometry is in record['geo_shape'] for Opendatasoft APIs
+    if 'geo_shape' in record:
+        features.append({
+            'geometry': shape(record['geo_shape']),
+            **record  # Include all other fields
+        })
+
+# Convert to GeoDataFrame
+gdf = gpd.GeoDataFrame(features, crs='EPSG:4326')
+
+# Save as GeoPackage
+gdf.to_file('../data/API/countries.gpkg', driver='GPKG')
+print("\nCountries data saved to: ../data/API/countries.gpkg")
+
+# endregion
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import os
+
+
+def simplify_and_save_countries(shapefile_path, output_gpkg_path, simplify_tolerance=0.5, plot_comparison=True):
+    """
+    Import a country shapefile, simplify geometries, and save as geopackage.
+
+    Parameters:
+    -----------
+    shapefile_path : str
+        Path to the input shapefile (e.g., 'data/ne_10m_admin_0_countries.shp')
+    output_gpkg_path : str
+        Path for the output geopackage (e.g., 'data/countries_simplified.gpkg')
+    simplify_tolerance : float
+        Tolerance for geometry simplification in the units of the CRS (default: 0.5 degrees)
+    plot_comparison : bool
+        Whether to plot before/after comparison (default: True)
+
+    Returns:
+    --------
+    geopandas.GeoDataFrame
+        The simplified GeoDataFrame
+    """
+
+    # Get original file size
+    original_size = os.path.getsize(shapefile_path)
+    print(f"Original shapefile size: {original_size:,} bytes ({original_size / 1024 / 1024:.2f} MB)")
+
+    # Load the shapefile
+    print(f"Loading shapefile from {shapefile_path}...")
+    world_original = gpd.read_file(shapefile_path)
+
+    # Read and display the CRS
+    print(f"Original CRS: {world_original.crs}")
+    print(f"Number of features: {len(world_original)}")
+
+    # Ensure it's in EPSG:4326 (WGS84)
+    if world_original.crs is None:
+        print("No CRS found, setting to EPSG:4326...")
+        world_original = world_original.set_crs('EPSG:4326')
+    elif world_original.crs != 'EPSG:4326':
+        print(f"Reprojecting from {world_original.crs} to EPSG:4326...")
+        world_original = world_original.to_crs('EPSG:4326')
+    else:
+        print("CRS is already EPSG:4326")
+
+    # Simplify geometries
+    print(f"Simplifying geometries with tolerance={simplify_tolerance}...")
+    world_simplified = world_original.copy()
+    world_simplified['geometry'] = world_simplified['geometry'].simplify(tolerance=simplify_tolerance)
+
+    # Save as geopackage
+    print(f"Saving to {output_gpkg_path}...")
+    world_simplified.to_file(output_gpkg_path, driver="GPKG")
+
+    # Get new file size
+    new_size = os.path.getsize(output_gpkg_path)
+    size_reduction = ((original_size - new_size) / original_size) * 100
+
+    print("\n" + "=" * 50)
+    print("File Size Comparison:")
+    print(f"  Original: {original_size:,} bytes ({original_size / 1024 / 1024:.2f} MB)")
+    print(f"  Simplified: {new_size:,} bytes ({new_size / 1024 / 1024:.2f} MB)")
+    print(f"  Reduction: {size_reduction:.1f}%")
+    print("=" * 50)
+    print(f"\nSaved {len(world_simplified)} features to {output_gpkg_path}")
+
+    # Plot comparison if requested
+    if plot_comparison:
+        print("\nCreating comparison plot...")
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+
+        # Plot original
+        world_original.plot(ax=ax1, color='lightblue', edgecolor='black', linewidth=0.5)
+        ax1.set_title(f'Original ({original_size / 1024 / 1024:.2f} MB)', fontsize=16)
+        ax1.set_xlabel('Longitude')
+        ax1.set_ylabel('Latitude')
+        ax1.grid(True, alpha=0.3)
+
+        # Plot simplified
+        world_simplified.plot(ax=ax2, color='lightgreen', edgecolor='black', linewidth=0.5)
+        ax2.set_title(f'Simplified (tolerance={simplify_tolerance}, {new_size / 1024 / 1024:.2f} MB)', fontsize=16)
+        ax2.set_xlabel('Longitude')
+        ax2.set_ylabel('Latitude')
+        ax2.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        # Save the comparison plot
+        comparison_plot_path = output_gpkg_path.replace('.gpkg', '_comparison.png')
+        plt.savefig(comparison_plot_path, dpi=150, bbox_inches='tight')
+        print(f"Comparison plot saved to {comparison_plot_path}")
+
+        plt.show()
+
+    return world_simplified
+
+
+# Example usage:
+if __name__ == "__main__":
+    shapefile_path = '../data/ne_10m_admin_0_countries.shp'
+    output_gpkg_path = '../data/countries_simplified.gpkg'
+
+    # Simplify and save
+    simplified_world = simplify_and_save_countries(
+        shapefile_path,
+        output_gpkg_path,
+        simplify_tolerance=.01,
+        plot_comparison=True
+    )
