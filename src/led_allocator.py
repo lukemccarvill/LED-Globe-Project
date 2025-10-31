@@ -5,24 +5,51 @@ import geopandas as gpd
 
 def determine_num_leds(led_data, energy_timeseries, year, tot_leds):
     countries = set(energy_timeseries["country"])
+    # pivot so each year is a column; keep only countries present in the raster timeseries
     led_data = led_data.pivot(index="Entity", columns="Year", values="primary_energy_consumption__twh").reset_index()
     led_data = led_data[led_data["Entity"].isin(countries)]
 
-    missing = max(led_data.isna().sum())
-    idx = (np.abs(led_data.columns.values[1:-1] - year)).argmin() + 1
-    energy_year = led_data.columns.values[idx]
-    while missing > 10:
-        missing = led_data.isna().sum().loc[energy_year]
-        if missing > 10:
-            energy_year -= 1
+    # Collect available year columns (as ints) from the pivoted DataFrame and map to actual column labels
+    available_years = []
+    col_map = {}
+    for c in led_data.columns:
+        if c == 'Entity':
+            continue
+        try:
+            y = int(c)
+            available_years.append(y)
+            col_map[y] = c
+        except Exception:
+            # skip non-year columns
+            continue
+    if not available_years:
+        raise ValueError("No year columns found in energy data after pivot.")
 
-    led_data = led_data[['Entity', energy_year]]
+    available_years = sorted(available_years)
+    # pick the closest available year to the requested year
+    energy_year = min(available_years, key=lambda y: abs(y - year))
+
+    # If there are many missing values for the chosen year, step backwards to an earlier available year
+    missing = led_data[col_map[energy_year]].isna().sum()
+    while missing > 10:
+        idx = available_years.index(energy_year)
+        if idx == 0:
+            break  # no earlier year available
+        energy_year = available_years[idx - 1]
+        missing = led_data[col_map[energy_year]].isna().sum()
+
+    # Use the actual column label (string or int) from the pivot table
+    col_label = col_map.get(energy_year, energy_year)
+    led_data = led_data[['Entity', col_label]]
     total_energy = led_data[energy_year].sum()
     led_data['energy_prop'] = led_data[energy_year] / total_energy
     led_data['num_leds'] = led_data['energy_prop'] * tot_leds
 
-    def rounding(led_data):
-        return np.round(led_data["num_leds"]).astype(int) if led_data["num_leds"] > 1 else np.floor(led_data["num_leds"]).astype(int)
+    def rounding(row):
+        val = row["num_leds"]
+        if pd.isna(val):
+            return 0
+        return int(np.round(val)) if val > 1 else int(np.floor(val))
 
     led_data["Round"] = led_data.apply(rounding, axis=1)
     

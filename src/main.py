@@ -16,7 +16,6 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib
 matplotlib.use("TkAgg") # LUKE NEEDS THIS ON HIS COMPUTER FOR SOME REASON # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
-#matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from led_allocator import determine_num_leds, allocate_leds
@@ -67,8 +66,9 @@ def run(opts: Options):
         if os.path.isdir(raster_dir):
             for f in os.listdir(raster_dir):
                 fl = f.lower()
-            if fl.endswith('.tif') and any(p in fl for p in patterns):
-                return os.path.join(raster_dir, f)
+                # return the first matching tif that contains any of the patterns
+                if fl.endswith('.tif') and any(p in fl for p in patterns):
+                    return os.path.join(raster_dir, f)
         return None
 
     if opts.raster_choice == "population":
@@ -77,17 +77,52 @@ def run(opts: Options):
         raster_path = _find_raster(['night', 'light', 'viirs', 'ntl'])
     else:
         raster_path = None
+    # These geopackages are expected to live in data/rasters and contain per-year columns used by the allocator.
+    timeseries_map = {
+        "population": "GHS_POP_timeseries_points.gpkg",
+        "ghs_volume": "GHS_BUILT_V_timeseries_points.gpkg",
+        "ghs_surface": "GHS_BUILT_S_timeseries_points.gpkg",
+        "nightlights": "nightlight_timeseries_points.gpkg",
+    }
 
-    energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg") # ~~~~~~~~~~ I THINK THIS WILL NEED TO BE UPDATED SOMEHOW; need nightlight tif processed to make gpkg for it too.
+    chosen = getattr(opts, "raster_choice", "population")
+    chosen_file = timeseries_map.get(chosen, "GHS_POP_timeseries_points.gpkg")
+    energy_raster_path = os.path.join(raster_dir, chosen_file)
     country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
     # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
-    
+
+    # Use the year selected in the GUI (or default)
+    year = getattr(opts, "raster_year", 2025)
+
+    # Print user-facing confirmation of chosen raster and year
+    print(f"Selected raster family: {chosen} -> {chosen_file}")
+    print(f"Selected raster year: {year}")
+
+    # Validate the chosen geopackage exists and offer helpful feedback/fallback
+    if not os.path.exists(energy_raster_path):
+        print(f"Warning: expected geopackage '{chosen_file}' not found at:\n  {energy_raster_path}")
+        if os.path.isdir(raster_dir):
+            found = [f for f in os.listdir(raster_dir) if f.lower().endswith('.gpkg')]
+        else:
+            found = []
+
+        if found:
+            print("Found these .gpkg files in data/rasters:")
+            for f in found:
+                print(f"  - {f}")
+            # Prefer any timeseries file, otherwise pick first gpkg as fallback
+            fallback = next((f for f in found if 'timeseries' in f.lower()), found[0])
+            energy_raster_path = os.path.join(raster_dir, fallback)
+            print(f"Falling back to: {fallback}\nUsing: {energy_raster_path}")
+        else:
+            raise FileNotFoundError(
+                f"No .gpkg files found in {raster_dir}. Please add '{chosen_file}' or a valid geopackage before running.")
+
     energy_timeseries = gpd.read_file(energy_raster_path)
     geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
-    # Parameters for the final output -- put these in GUI eventually?
-    year = 2025
+    # Parameters for the final output
     tot_leds = 3500 # number of leds to add
     final_width = 4 # meters
     final_height = 2 # meters
