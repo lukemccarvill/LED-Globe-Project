@@ -36,6 +36,7 @@ def create_reference_grid(src):
 def add_raster_column(gdf, raster_path, col_name):
     with rasterio.open(raster_path) as src:
         data = src.read(1).ravel()
+        data = np.round(data, 2).astype("float32") # previously too large with 64-bit precision float
     gdf[col_name] = data
     return gdf
 
@@ -64,7 +65,7 @@ def spatial_join_countries(gdf, countries_path):
 def main():
     ap = argparse.ArgumentParser(description="Convert a single raster to a 'timeseries-style' points GeoPackage (matching your existing schema).")
     ap.add_argument("--raster", default="data/rasters/nightlight_2024.tif", help="Path to input .tif")
-    ap.add_argument("--out", default="nightlight_timeseries_points.gpkg", help="Output GPKG path")
+    ap.add_argument("--out", default="data/rasters/nightlight_timeseries_points.gpkg", help="Output GPKG path")
     ap.add_argument("--layer", default="points", help="Output layer name (default: points)")
     ap.add_argument("--countries", default="data/countries_simplified.gpkg", help="Optional countries GPKG for join (default mirrors your script). Use '' to skip.")
     ap.add_argument("--col-name", default=None, help="Override the data column name (e.g., 2024). Defaults to a year parsed from the filename.")
