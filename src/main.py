@@ -91,7 +91,7 @@ def run(opts: Options):
     chosen = getattr(opts, "raster_choice", "population")
     chosen_file = timeseries_map.get(chosen, "GHS_POP_timeseries_points.gpkg")
     energy_raster_path = os.path.join(raster_dir, chosen_file)
-    country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
+    energy_timeseries = gpd.read_file(energy_raster_path)
     # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
 
     # Use the year selected in the GUI (or default)
@@ -121,63 +121,10 @@ def run(opts: Options):
             raise FileNotFoundError(
                 f"No .gpkg files found in {raster_dir}. Please add '{chosen_file}' or a valid geopackage before running.")
 
-    energy_timeseries = gpd.read_file(energy_raster_path)
-    geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
-    output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
-
-    # Parameters for the final output
-    tot_leds = 3500 # number of leds to add
-    final_width = 4 # meters
-    final_height = 2 # meters
-    led_width = 0.002 # meters (2mm)
-    led_height = 0.0035 # meters (3.5mm)
-    num_gores = 12  # number of gores to draw
-
-    # Establish gui backend if user specifies
-    if opts.require_backend:
-        matplotlib.use('TkAgg')
-
-    # Load the country shapefile and LED data - old method
-    #world = gpd.read_file(shapefile_path)
-    #led_data = pd.read_excel(country_energy_path)
-    # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv(f"{data_dir}/API/global_energy_consumption.csv") # new way of allocating leds
-
-    
-    #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
-    # Do we want to keep the old way of manually editing data now that we can dynamically update from API + dynamically allocate LEDs, even when out of cells to place them
-    # Check if the edited GeoJSON file exists and use it if the flag is set
-    if opts.use_edited_geojson:
-        geojson_files = [f for f in os.listdir(data_dir) if f.endswith('.geojson')]
-        if len(geojson_files) == 1:
-            print(f"Using the GeoJSON file: {geojson_files[0]}")
-            all_leds_gdf = gpd.read_file(os.path.join(data_dir, geojson_files[0]))
-        elif len(geojson_files) == 0:
-            print("No GeoJSON files found in the data folder.")
-        else:
-            print(f"Multiple GeoJSON files found: {geojson_files}. Please ensure only one file is present.")
-
-    elif opts.manual_manipulation and opts.draw_leds and os.path.exists(geojson_output_path):
-        print("Manual manipulation mode enabled. Loading the manual edit GeoJSON file from the transients folder.")
-        all_leds_gdf = gpd.read_file(geojson_output_path)
-    else:
-        # Filter the LED data to include only the top entities and drop NaN values
-        #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
-        # Allocate LEDs based on population
-        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
-
-    #raster_path = os.path.join(data_dir, 'gpw_v4_population_density_rev11_2020_30_min.tif')
-    energy_raster_path = os.path.join(raster_dir, "GHS_BUILT_S_timeseries_points.gpkg")
-    #country_energy_path = os.path.join(data_dir, 'Country Energy Data.xlsx')
-    # Store previously edited geoJSON file in 'data' directory as well, if you want it to be used in the code.
-    
-    energy_timeseries = gpd.read_file(energy_raster_path)
     geojson_output_path = os.path.join(transient_dir, 'led_positions_for_manual_edit.geojson')
     output_svg_filename = os.path.join(output_dir, 'full_map_4m_by_2m.svg')
 
     # Parameters for the final output -- put these in GUI eventually?
-    year = 2025
     tot_leds = 3500 # number of leds to add
     final_width = 4 # meters
     final_height = 2 # meters
@@ -188,12 +135,6 @@ def run(opts: Options):
     # Establish gui backend if user specifies
     if opts.require_backend:
         matplotlib.use('TkAgg')
-
-    # Load the country shapefile and LED data - old method
-    #world = gpd.read_file(shapefile_path)
-    #led_data = pd.read_excel(country_energy_path)
-    # chosen_column = [str(col) for col in led_data.columns if "Chosen" in str(col)][0] # Find the column that contains the string "Chosen"
-    led_data = pd.read_csv(f"{data_dir}/API/global_energy_consumption.csv") # new way of allocating leds
 
     
     #### USING THE NEW WAY OF DETERMINING THE NUMBER OF LEDS - DO WE EVEN NEED THIS SECTION ANYMORE? CAN WE EDIT SOME OF THIS
@@ -212,19 +153,16 @@ def run(opts: Options):
     elif opts.manual_manipulation and opts.draw_leds and os.path.exists(geojson_output_path):
         print("Manual manipulation mode enabled. Loading the manual edit GeoJSON file from the transients folder.")
         all_leds_gdf = gpd.read_file(geojson_output_path)
-    else:
-        # Filter the LED data to include only the top entities and drop NaN values
-        #led_data = led_data[led_data[chosen_column] > 0].dropna(subset=[chosen_column])
-        # Allocate LEDs based on population
-        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
-        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
-
-        # If in manual manipulation mode, the script will exit after creating the GeoJSON
+         # If in manual manipulation mode, the script will exit after creating the GeoJSON
         if opts.manual_manipulation and opts.draw_leds:
             print("Manual manipulation mode is enabled. Please edit the GeoJSON file and rerun the script.")
             print("Please ensure you close QGIS before rerunning the script or else you will get an error that the GeoJSON file is being used by another software.")
             exit()  # Exit the script here to allow for manual edits
-
+    else:
+        # Load the the energy consumption data for allocating LEDs and assign leds
+        led_data = pd.read_csv(f"{data_dir}/API/global_energy_consumption.csv")
+        led_data = determine_num_leds(led_data, not_countries, year, tot_leds)
+        all_leds_gdf = allocate_leds(led_data, energy_timeseries, year, alias, allocate_leds=opts.draw_leds, place_ocean=opts.place_ocean, manual_manipulation=opts.manual_manipulation, geojson_output_path=geojson_output_path)
 
     # Set up the final figure dimensions (4000mm x 2000mm)
     fig, ax = plt.subplots(figsize=(final_width * 39.3701, final_height * 39.3701))  # Exact 4m x 2m canvas in inches
