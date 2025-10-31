@@ -1,10 +1,56 @@
+"""
+LED Allocation System for Geographic Energy Visualization
+
+This module provides functionality for distributing and positioning LEDs on a geographic map
+based on country-level energy consumption data. It consists of two main components:
+
+1. determine_num_leds: Calculates the number of LEDs to allocate to each country based on
+   their proportional energy consumption for a given year. Countries with higher energy
+   consumption receive more LEDs proportionally.
+
+2. allocate_leds: Places the allocated LEDs at specific geographic coordinates within each
+   country's boundaries. LEDs are positioned according to raster density data, with options
+   to overflow into surrounding ocean areas when a country's land area has insufficient
+   cells. Supports manual position editing via GeoJSON export/import.
+
+
+Function Specifications:
+
+determine_num_leds(led_data, energy_timeseries, year, tot_leds)
+    Inputs:
+        - led_data: DataFrame with columns ['Entity', 'Year', 'primary_energy_consumption__twh']
+        - energy_timeseries: GeoDataFrame with country names and geographic data
+        - year: int, target year for energy consumption data
+        - tot_leds: int, total number of LEDs to distribute across all countries
+
+    Outputs:
+        - DataFrame with columns: ['Entity', energy_year, 'energy_prop', 'num_leds', 'Round']
+          where 'Round' contains the final integer LED count per country
+
+allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_ocean=True,
+              use_edited_geojson=False, manual_manipulation=False,
+              geojson_output_path="led_positions_for_manual_edit.geojson",
+              prev_edited_geojson_path="prev_edited_led_positions.geojson")
+    Inputs:
+        - led_data: DataFrame from determine_num_leds() with LED counts per country
+        - energy_timeseries: GeoDataFrame with columns ['country', 'point_index', year, 'geometry']
+        - year: int, year column name to use for raster density values
+        - allocate_leds: bool, whether to perform LED allocation (default: True)
+        - place_ocean: bool, allow LED placement in ocean when land cells exhausted (default: True)
+        - use_edited_geojson: bool, load previously edited positions instead of recalculating (default: False)
+        - manual_manipulation: bool, export GeoJSON for manual editing (default: False)
+        - geojson_output_path: str, path to save GeoJSON for manual editing
+        - prev_edited_geojson_path: str, path to load previously edited GeoJSON
+
+    Outputs:
+        - GeoDataFrame with columns: ['geometry', 'Country', 'Raster_Density']
+          containing Point geometries for each LED position
+"""
+
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import os
-import csv
-from matplotlib.patches import Rectangle
-from raster_mapper import map_raster_to_gore
 
 def determine_num_leds(led_data, energy_timeseries, year, tot_leds):
     countries = set(energy_timeseries["country"])
@@ -122,53 +168,3 @@ def allocate_leds(led_data, energy_timeseries, year, allocate_leds=True, place_o
         return all_leds_gdf  # Return the GeoDataFrame for further processing if needed
 
     return all_leds_gdf
-
-
-def plot_leds_on_gores(all_leds_gdf, ax, gore_boundaries, led_width=0.002, led_height=0.0035, scale_factor=1, plot_leds=True):
-    # Define the path to the 'transients' folder in the repository
-    project_root = os.path.dirname(os.path.dirname(__file__))  # Assuming script is run from 'src'
-    transients_dir = os.path.join(project_root, 'transients')
-
-    # Create the 'transients' folder if it doesn't exist
-    if not os.path.exists(transients_dir):
-        os.makedirs(transients_dir)
-
-    # Path to save the CSV file
-    csv_output_path = os.path.join(transients_dir, "led_coordinates_global.csv")
-
-    if not plot_leds:
-        return  # If LED plotting is disabled, exit early
-
-    # Extract LED coordinates
-    led_lon = all_leds_gdf.geometry.x
-    led_lat = all_leds_gdf.geometry.y
-
-    # Open the CSV file to write the pick-and-place data
-    with open(csv_output_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-
-        # Create the header row without the blank column
-        writer.writerow(["X (mm)", "Y (mm)", "Gore Section"])
-
-        # Map the LED data to the gores
-        gore_x, gore_y = map_raster_to_gore(gore_boundaries, led_lon, led_lat)
-
-        # Scale the dimensions of the rectangles
-        rect_width = led_width * scale_factor  # Adjusted width in plot units
-        rect_height = led_height * scale_factor  # Adjusted height in plot units
-
-        # Plot the LED data as rectangles on the gores
-        for lon, lat, x, y in zip(led_lon, led_lat, gore_x, gore_y):
-            rect = Rectangle((x - rect_width / 2, y - rect_height / 2), rect_width, rect_height, facecolor='red', edgecolor='none')
-            ax.add_patch(rect)
-
-            # Determine the gore section and hemisphere
-            gore_index = int((lon + 180) / 30) + 1  # Gore section number (1-12)
-            hemisphere = "N" if lat >= 0 else "S"  # North or South
-            section_label = f"{gore_index}{hemisphere}"
-
-            # Write to CSV: X, Y, Gore Section
-            writer.writerow([x * 1000, y * 1000, section_label])
-
-    print(f"CSV saved at {csv_output_path}")
-    print("LED rectangles plotted on the gores.")
