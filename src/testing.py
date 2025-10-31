@@ -1,10 +1,13 @@
 # this script takes the CSV file that the led_plotter script made and tests it out on the gores using blue rectangles instead of red
 # this is just to see if the plot_leds_on_gores() function is working properly; it is not used in main.py
+# run this script as a standalone script, ensure it has access to gore_drawer and the path to the gorehalf_coordinates_with_sheets.xlsx file
+# this is just to see if the create_gorehalf_coords() function is working properly; it is not used in main.py
 
 import csv
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-from gore_drawer import plot_multiple_gores
+from gores import *
 
 # Paths to relevant files
 csv_input_path = "led_coordinates_global.csv"
@@ -44,15 +47,6 @@ plt.show()
 plt.close(fig)
 
 print(f"Full map saved as {output_filename}")
-
-# run this script as a standalone script, ensure it has access to gore_drawer and the path to the gorehalf_coordinates_with_sheets.xlsx file
-# this is just to see if the create_gorehalf_coords() function is working properly; it is not used in main.py
-
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from gore_drawer import plot_multiple_gores
-
 
 # Function to reverse the translation from per-gorehalf coordinates to globe coordinates
 def reverse_translation(x, y, gore_half):
@@ -111,3 +105,4 @@ if __name__ == "__main__":
     # Replace with the path to the xlsx file
     xlsx_file = r"C:\Users\19023\Downloads\Swingler\Python LED Placing\gorehalf_coordinates_with_sheets.xlsx"
     plot_translated_leds(xlsx_file)
+
