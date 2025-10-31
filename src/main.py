@@ -9,12 +9,7 @@
 #   ensure you've closed any files (QGIS, Excel, etc) before getting python to work on them, or else it will likely throw a permissions error
 # Note: many of the scripts are not appropriately generalizable using vars; num_gores, width, and height should really be editable in main but those values are hardcoded elsewhere
 
-import os
-import geopandas as gpd
-import pandas as pd
 import matplotlib
-#matplotlib.use("TkAgg")   # matplotlib needs a backend; this will fix an issue if the user's env doesn't already have a gui backend, but may break something if they do already
-import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from LEDs import *
 from gores import *
@@ -32,12 +27,7 @@ class Options:
     create_coords_for_manufact: bool = False  # Toggle this to create gore half coordinates for pick-and-place
     use_simplified_countries: bool = True  # Set to True to use pre-simplified geopackage (faster loading)
     require_backend = False # Set to True if your env doesn't already have a gui backend
-    # Color mode selection
-    COLOR_MODE = 'leds'  # Options: 'continent', 'leds'
 
-    # LED-based color scheme
-    LED_COLORMAP = 'red'  # Yellow-Orange-Red (more LEDs = redder)
-    # Other good options: 'viridis', 'plasma', 'inferno', 'hot', 'RdYlGn_r'
 # ~~~
 
 def run(opts: Options):
@@ -137,14 +127,6 @@ def run(opts: Options):
     # Save both PNG and simplified SVG
     output_base = output_svg_filename.replace('.svg', '')
 
-    # High-res PNG for viewing
-    # fig.savefig(f"{output_base}_highres.png", format="png", dpi=300, pad_inches=0, transparent=True)
-    # print(f"High-res PNG saved as {output_base}_highres.png")
-
-    # # Lower-res PNG for quick preview
-    # fig.savefig(f"{output_base}_preview.png", format="png", dpi=150, pad_inches=0, transparent=True)
-    # print(f"Preview PNG saved as {output_base}_preview.png")
-
     # Rasterized SVG (much smaller)
     for collection in ax.collections:
         collection.set_rasterized(True)
@@ -157,8 +139,3 @@ def run(opts: Options):
 if __name__ == "__main__":
     # click run on main.py to run with defaults (no gui)
     run(Options())
-
-#def save_plot_as_svg(fig, filename="world_on_gores.svg"):
-    # Save the figure to an SVG file
-    #print("Saving SVG file...")
-    #fig.savefig(filename, format='svg')
