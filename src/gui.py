@@ -17,6 +17,7 @@ from typing import Optional
 import os, re
 from PIL import Image, ImageTk
 import re
+from tkinter import ttk
 
 
 def get_options_gui(initial: Options) -> Options:
@@ -155,6 +156,7 @@ def get_options_gui(initial: Options) -> Options:
 
 
 	# Buttons
+
 	result = {"opts": None} # default is cancelled unless "OK" is pressed
 	def on_ok():
 		data = asdict(initial)
@@ -168,11 +170,22 @@ def get_options_gui(initial: Options) -> Options:
 	def on_cancel():
 		result["opts"] = None
 		root.destroy()
+	
+    # Use ttk.Style with consistent indentation
+	style = ttk.Style()
+	style.configure("Blue.TButton", foreground="white", background="#0078D7")  # Windows blue
+	style.map("Blue.TButton",
+		background=[("active", "#3399FF"), ("pressed", "#005A9E")]
+	)
 
 	btns = ttk.Frame(frm)
 	btns.grid(row=row, column=0, sticky="e", pady=(12, 0))
 	ttk.Button(btns, text="Cancel", command=on_cancel).grid(row=0, column=0, padx=(0, 8))
-	ttk.Button(btns, text="OK", command=on_ok).grid(row=0, column=1)
+	# ttk.Button(btns, text="OK", command=on_ok).grid(row=0, column=1)
+	# ttk.Button(btns, text="OK", command=on_ok, style="Blue.TButton").grid(row=0, column=1)
+	from tkinter import Button
+	Button(btns, text="        OK        ", command=on_ok, bg="#0078D7", fg="white").grid(row=0, column=1)
+
 
 	# === Right column: image preview (uses pack INSIDE img_frame) ===
 	img_frame = ttk.Frame(container)
